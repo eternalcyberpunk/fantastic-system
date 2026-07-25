@@ -315,6 +315,86 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .forge-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ice-faint);
   line-height:1.6;margin-top:10px}
 
+/* drops / shop */
+.shop-tabs{display:flex;gap:8px;margin-bottom:14px}
+.shop-tab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--edge);color:var(--ice-dim);transition:.2s}
+.shop-tab.on{border-color:transparent;color:var(--ice);
+  background:linear-gradient(120deg,rgba(139,123,255,.3),rgba(111,232,220,.25));
+  box-shadow:0 0 14px rgba(139,123,255,.2)}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shop-card{border:1px solid rgba(255,255,255,.09);border-radius:13px;overflow:hidden;
+  background:rgba(255,255,255,.03);cursor:pointer;transition:.25s;text-align:left;padding:0;color:var(--ice)}
+.shop-card:hover{border-color:rgba(111,232,220,.45);transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.shop-thumb{height:84px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,rgba(139,123,255,.14),rgba(6,8,18,.1) 45%,rgba(111,232,220,.12))}
+.shop-thumb svg{width:52px;height:52px;fill:none;stroke:url(#nope);stroke-width:1.3}
+.shop-thumb.big{height:120px}
+.shop-thumb.big svg{width:72px;height:72px}
+.shop-info{padding:10px 12px 12px}
+.shop-info h5{font-size:12.5px;font-weight:500;letter-spacing:.03em;margin-bottom:3px}
+.shop-info span{font-family:var(--mono);font-size:10px;color:var(--prism-cyan)}
+.size-pills{display:flex;gap:8px;margin-bottom:13px;flex-wrap:wrap}
+.size-pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:8px 13px;border-radius:999px;
+  border:1px solid var(--edge);color:var(--ice-dim);transition:.2s}
+.size-pill.on{border-color:var(--prism-cyan);color:var(--ice);box-shadow:0 0 10px rgba(111,232,220,.25)}
+.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.qty-btn{width:33px;height:33px;border-radius:50%;border:1px solid var(--edge);color:var(--ice);
+  font-size:16px;line-height:1;transition:.2s}
+.qty-btn:hover{border-color:var(--prism-cyan);box-shadow:0 0 8px rgba(111,232,220,.25)}
+.qty-n{font-family:var(--mono);font-size:14px;width:30px;text-align:center}
+.price-big{font-family:var(--display);font-size:16px;letter-spacing:.12em;color:var(--prism-cyan);
+  text-shadow:0 0 12px rgba(111,232,220,.4);margin:8px 0 14px}
+.cart-line{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
+  padding:11px 0;border-bottom:1px dashed rgba(255,255,255,.1)}
+.cart-line .ci h5{font-size:13px;font-weight:500}
+.cart-line .ci p{font-family:var(--mono);font-size:9.5px;color:var(--ice-faint);margin:3px 0 0;line-height:1.5}
+.cart-line .cp{font-family:var(--mono);font-size:12px;color:var(--ice);white-space:nowrap;padding-top:2px}
+.cart-x{color:var(--ice-faint);font-size:15px;padding:0 4px;line-height:1}
+.cart-x:hover{color:#ff8a8a}
+.cart-total{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;
+  padding:12px 0 4px;letter-spacing:.06em;color:var(--ice-dim)}
+.cart-total.grand{color:var(--ice);font-size:13.5px;border-top:1px solid rgba(255,255,255,.14);margin-top:6px;padding-top:13px}
+.back-link{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--prism-cyan);
+  margin-bottom:13px;display:inline-block}
+.node-cart{position:absolute;bottom:-4px;right:-4px;min-width:18px;height:18px;border-radius:99px;
+  background:linear-gradient(135deg,var(--prism-rose),var(--prism-violet));
+  font-family:var(--mono);font-size:9.5px;font-weight:700;color:#160a1a;
+  display:none;align-items:center;justify-content:center;padding:0 4px;
+  box-shadow:0 0 10px rgba(255,154,213,.6)}
+
+/* generative checkout terminal */
+#terminal{position:fixed;inset:0;z-index:95;display:none;overflow-y:auto;
+  background:#05060f;-webkit-overflow-scrolling:touch}
+#terminal.open{display:block}
+.term-bg{position:fixed;inset:0;pointer-events:none}
+.term-wrap{position:relative;max-width:580px;margin:0 auto;padding:28px 16px 70px;min-height:100%}
+.term-panel{position:relative;background:rgba(10,12,28,.66);
+  backdrop-filter:blur(24px) saturate(1.25);-webkit-backdrop-filter:blur(24px) saturate(1.25);
+  padding:24px 20px 26px;
+  box-shadow:inset 0 0 0 1px var(--t2,rgba(255,255,255,.14)),0 0 44px rgba(0,0,0,.5)}
+.term-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.term-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--t1,#6fe8dc);
+  margin-bottom:7px;text-shadow:0 0 10px var(--t1,#6fe8dc)}
+.term-title{font-size:clamp(22px,6vw,30px);letter-spacing:.1em;line-height:1.1;color:#f2f6ff;
+  text-shadow:-1.4px 0 var(--t1,#6fe8dc),1.4px 0 var(--t3,#ff9ad5)}
+.term-actions{display:flex;gap:8px;flex:none;align-items:center}
+.dice-btn{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;padding:8px 12px;border-radius:999px;
+  border:1px solid var(--t1,#6fe8dc);color:var(--t1,#6fe8dc);transition:.2s;white-space:nowrap}
+.dice-btn:hover{box-shadow:0 0 14px var(--t1,#6fe8dc);color:#fff}
+.term-sec{font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;color:var(--ice-faint);
+  margin:20px 0 10px;padding-bottom:6px;border-bottom:1px dashed rgba(255,255,255,.12)}
+.del-cards{display:grid;gap:9px}
+.del-card{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;
+  border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:13px 15px;
+  background:rgba(255,255,255,.03);transition:.2s;color:var(--ice)}
+.del-card b{font-weight:500;font-size:13.5px}
+.del-card span{font-family:var(--mono);font-size:10.5px;color:var(--ice-faint)}
+.del-card.on{border-color:var(--t1,#6fe8dc);box-shadow:0 0 14px rgba(255,255,255,.08),inset 0 0 16px rgba(255,255,255,.03)}
+.del-card.on span{color:var(--t1,#6fe8dc)}
+@media (max-width:760px){ .term-wrap{padding:18px 10px 60px} .term-panel{padding:20px 15px 22px} }
+
 /* ============ TOAST ============ */
 #toast{position:fixed;left:50%;bottom:calc(var(--hud-h) + 22px);transform:translate(-50%,24px);
   z-index:80;opacity:0;pointer-events:none;transition:.5s cubic-bezier(.2,.9,.3,1);
@@ -437,7 +517,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 <!-- ============ HUD BOTTOM ============ -->
 <footer class="hud-bottom">
   <div class="progress">
-    <span id="progLabel">SECTORS<span class="m-hide"> SCANNED</span> 0/8</span>
+    <span id="progLabel">SECTORS<span class="m-hide"> SCANNED</span> 0/9</span>
     <span class="pips" id="pips"></span>
   </div>
   <div class="hint" id="hint">SELECT A NODE TO ACCESS ITS DATA<span class="kb"> · <b>←→</b> JUMP · <b>↵</b> OPEN</span></div>
@@ -459,8 +539,10 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 
 <div id="toast" role="status">
   <h5>FULL SYNC ACHIEVED</h5>
-  <p>All eight sectors scanned. Mention code <b>FULLSYNC</b> when you book — 5% off your first deployment.</p>
+  <p>All nine sectors scanned. Mention code <b>FULLSYNC</b> when you book — 5% off your first deployment.</p>
 </div>
+
+<div id="terminal" role="dialog" aria-modal="true" aria-label="Checkout terminal"></div>
 
 <script>
 /* ================= DATA ================= */
@@ -472,6 +554,7 @@ const ICONS = {
   archive:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><path d="M17 13.7v6.6M13.7 17h6.6"/></svg>',
   range:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" opacity=".55"/><circle cx="12" cy="12" r="1.3"/><path d="M12 12l5.8-5.8"/></svg>',
   forge:'<svg viewBox="0 0 24 24"><path d="M12 4.4l5.8 3.3v6.6L12 17.6l-5.8-3.3V7.7L12 4.4z"/><path d="M12 11l5.8-3.3M12 11v6.6M12 11L6.2 7.7"/><path d="M20.6 15.8a9.4 9.4 0 01-4.1 4.3M3.4 8.2a9.4 9.4 0 014.1-4.3" opacity=".6"/></svg>',
+  drops:'<svg viewBox="0 0 24 24"><path d="M6 8.2h12l-1.2 12a1.9 1.9 0 01-1.9 1.7H9.1a1.9 1.9 0 01-1.9-1.7L6 8.2z"/><path d="M9 8.2V6.9a3 3 0 016 0v1.3"/><path d="M9.6 13c.8 1.6 4 1.6 4.8 0" opacity=".65"/></svg>',
   uplink:'<svg viewBox="0 0 24 24"><path d="M12 20V9"/><path d="M7.5 12.5L12 8l4.5 4.5"/><path d="M5 7a9.5 9.5 0 0114 0" opacity=".55"/><path d="M7.6 9.6a5.8 5.8 0 018.8 0" opacity=".8"/></svg>',
   check:'<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>'
 };
@@ -487,7 +570,7 @@ const GALLERY = [
 
 const NODES = [
   {id:'core', name:'CORE', role:'OVERVIEW', icon:'core',
-   d:[49,44], m:[50,10],
+   d:[49,44], m:[50,9],
    title:'The print lab that rolls to you',
    html:`<p><strong>Marvelous 3D Printing is a full fabrication lab built into a mobile rig.</strong> Prototypes, replacement parts, props, short production runs — printed at your door, your event, or your job site, anywhere in greater Los Angeles.</p>
    <p>No shipping delays. No waiting on a shop across town. You send the idea; we bring the machines and print while you watch.</p>
@@ -498,7 +581,7 @@ const NODES = [
    </div>`},
 
   {id:'services', name:'SERVICES', role:'MISSION TYPES', icon:'services',
-   d:[23,26], m:[25,24],
+   d:[23,26], m:[25,23],
    title:'Mission types',
    html:`<div class="svc"><h4>ON-SITE PROTOTYPING</h4><p>Iterate in real time. Print, test, tweak the model, and reprint in the same session — hours instead of weeks.</p></div>
    <div class="svc"><h4>REPLACEMENT PARTS</h4><p>Bring us the broken piece. We measure or scan it, model a fix, and print it tougher than the original.</p></div>
@@ -516,7 +599,7 @@ const NODES = [
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Request a quote</button><button class="cta" data-goto="range">Check your zone</button></div>`},
 
   {id:'rig', name:'THE RIG', role:'MOBILE UNIT', icon:'rig',
-   d:[75,24], m:[75,24],
+   d:[75,24], m:[75,23],
    title:'One vehicle. A whole print farm.',
    html:`<p>The rig is a climate-controlled fabrication bay on wheels — every machine racked, powered, and calibrated before we reach you.</p>
    <div class="spec"><span class="k">FDM BAYS</span><span class="v"><em>6× enclosed printers</em> · 0.25–0.8&thinsp;mm nozzles · up to 300&thinsp;°C</span></div>
@@ -529,7 +612,7 @@ const NODES = [
    <div class="cta-row"><button class="cta" data-goto="archive">See what it prints</button></div>`},
 
   {id:'protocol', name:'PROTOCOL', role:'HOW IT WORKS', icon:'protocol',
-   d:[17,63], m:[25,42],
+   d:[17,63], m:[25,39],
    title:'Four steps, one visit',
    html:`<div class="step"><div><div class="step-num">01</div><div class="step-line"></div></div><div><h4>TRANSMIT</h4><p>Send a model, a sketch, or a photo of the broken part. We confirm scope and lock a fixed quote — usually within hours.</p></div></div>
    <div class="step"><div><div class="step-num">02</div><div class="step-line"></div></div><div><h4>DEPLOY</h4><p>Pick a window. The rig rolls to your address and is printing within fifteen minutes of parking.</p></div></div>
@@ -538,19 +621,19 @@ const NODES = [
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Start at step 01</button></div>`},
 
   {id:'forge', name:'FORGE', role:'PRINT SIMULATOR', icon:'forge',
-   d:[34,57], m:[75,42],
+   d:[34,57], m:[75,39],
    title:'Drop a model. Watch it become real.',
    html:`<div id="forgeRoot"><p>Loading the forge…</p></div>`},
 
   {id:'archive', name:'ARCHIVE', role:'PAST PRINTS', icon:'archive',
-   d:[66,72], m:[25,60],
+   d:[66,72], m:[25,55],
    title:'Pulled from the archive',
    html:`<p>A few recent missions — from one-hour rescue parts to multi-day builds.</p>
    <div class="arch-grid">${GALLERY.map(g=>`<div class="arch"><div class="arch-thumb">${g.svg}</div><div class="arch-info"><h5>${g.t}</h5><span>${g.m}</span></div></div>`).join('')}</div>
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Add yours to the archive</button></div>`},
 
   {id:'range', name:'RANGE', role:'SERVICE AREA', icon:'range',
-   d:[85,50], m:[75,60],
+   d:[85,50], m:[75,55],
    title:'Deployment range',
    html:`<div class="radar-wrap"><svg class="radar" viewBox="0 0 200 200" aria-hidden="true">
      <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(255,154,213,.28)" stroke-dasharray="3 5"/>
@@ -570,8 +653,13 @@ const NODES = [
    <div class="zone"><span class="zone-dot" style="background:#ff9ad5;box-shadow:0 0 8px #ff9ad5"></span><div><h4>Zone C <span>60 mi +</span></h4><p>Special deployments — festivals, film sets, multi-day installs. Priced per mission.</p></div></div>
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Request your window</button></div>`},
 
+  {id:'drops', name:'DROPS', role:'SHOP', icon:'drops',
+   d:[59,16], m:[25,72],
+   title:'Printed goods. Fresh off the rig.',
+   html:`<div id="shopRoot"></div>`},
+
   {id:'uplink', name:'UPLINK', role:'BOOK / CONTACT', icon:'uplink',
-   d:[40,80], m:[50,80],
+   d:[40,80], m:[75,72],
    title:'Open a channel',
    html:`<p>Tell us what you need printed and where. We reply with a fixed quote and the next available window — within one business day.</p>
    <div class="field"><label for="f-name">CALLSIGN / NAME</label><input id="f-name" type="text" placeholder="Ada Reyes" autocomplete="name"></div>
@@ -594,7 +682,8 @@ const NODES = [
 const EDGES = [
   ['core','services'],['core','rig'],['core','protocol'],['core','archive'],['core','uplink'],
   ['rig','range'],['services','protocol'],['protocol','uplink'],['range','uplink'],['services','archive'],
-  ['core','forge'],['forge','uplink'],['forge','rig']
+  ['core','forge'],['forge','uplink'],['forge','rig'],
+  ['core','drops'],['drops','uplink'],['drops','rig']
 ];
 
 /* ================= AUDIO ================= */
@@ -632,6 +721,7 @@ const sfx = {
   send:  ()=>{ sweep(280,1500,.5,'sine',.05); tone(1720,.12,'sine',.04,.5); },
   bootTick:(p)=> tone(240 + p*7, .04, 'square', .008),
   bootUp:()=>{ [130,195,260,390].forEach((f,i)=> tone(f,.5,'sine',.035,i*.06)); sweep(200,900,.6,'triangle',.02); },
+  coin:  ()=>{ tone(980,.07,'triangle',.05); tone(1470,.1,'sine',.05,.07); },
   win:   ()=>{ [660,830,990,1320].forEach((f,i)=> tone(f,.16,'sine',.05,i*.09)); }
 };
 
@@ -717,6 +807,12 @@ const lineEls = EDGES.map(([a,b])=>{
   threads.appendChild(l);
   return l;
 });
+
+/* cart badge on the DROPS node */
+const cartBadgeEl = document.createElement('span');
+cartBadgeEl.className = 'node-cart';
+cartBadgeEl.id = 'cartBadge';
+nodeEls.drops.querySelector('.node-orb').appendChild(cartBadgeEl);
 
 /* ================= DRIFT LOOP ================= */
 let W = 0, H = 0, mobile = false;
@@ -866,6 +962,7 @@ function select(id){
   }
   if(id === 'uplink') wireUplink();
   if(id === 'forge') wireForge();
+  if(id === 'drops') wireShop();
 }
 
 function closePanel(){
@@ -1338,9 +1435,452 @@ async function wireForge(){
   renderForgeUI();
 }
 
+/* ================= DROPS — SHOP ================= */
+const SHOP_ITEMS = [
+  {id:'dragon', name:'Flexi Dragon', price:16, blurb:'Articulated print-in-place dragon. Endlessly fidgetable, faintly menacing.',
+   art:'<svg viewBox="0 0 52 52"><path d="M8 34c4-9 10-9 14-4s10 5 14-2c2.5-4.5 7-5 9-2"/><path d="M12 30l-2-4M18 29l-1-4.5M27 31l1-4.5M35 27l2-4"/><circle cx="44" cy="24" r="1.4"/><path d="M6 38c3 3 8 4 12 3" opacity=".6"/></svg>'},
+  {id:'axolotl', name:'Articulated Axolotl', price:14, blurb:'The pink internet legend — wiggly segments, tiny smile, full serotonin.',
+   art:'<svg viewBox="0 0 52 52"><path d="M10 30c0-6 6-10 13-10s13 4 13 10-6 10-13 10-13-4-13-10z"/><path d="M36 26c3-2 5-5 5-8M36 34c3 2 5 5 5 8M14 26c-3-2-5-5-5-8M14 34c-3 2-5 5-5 8" opacity=".7"/><circle cx="20" cy="28" r="1.3"/><circle cx="28" cy="28" r="1.3"/><path d="M21 33c1.5 1.2 4.5 1.2 6 0"/></svg>'},
+  {id:'keytag', name:'Custom Name Keytag', price:8, custom:true, blurb:'Your word in chunky rounded type. Bags, keys, lanyards, whatever.',
+   art:'<svg viewBox="0 0 52 52"><rect x="8" y="20" width="30" height="14" rx="7"/><circle cx="43" cy="27" r="4"/><path d="M14 27h14" opacity=".7"/></svg>'},
+  {id:'planter', name:'Geo Desk Planter', price:12, blurb:'Faceted low-poly pot for the emotional-support succulent.',
+   art:'<svg viewBox="0 0 52 52"><path d="M14 22h24l-4 20H18l-4-20z"/><path d="M14 22l12 6 12-6M26 28v14" opacity=".6"/><path d="M26 22c0-5 3-8 7-9-1 4-3 7-7 9zM26 22c0-4-2.5-7-6-8 .8 3.4 2.6 6.2 6 8z"/></svg>'},
+  {id:'dock', name:'Angle Phone Dock', price:15, blurb:'Cable channel underneath, prime viewing angle for doomscroll breaks.',
+   art:'<svg viewBox="0 0 52 52"><path d="M12 40h28l-6-8H18l-6 8z"/><rect x="20" y="11" width="12" height="22" rx="2.5" transform="rotate(12 26 22)"/></svg>'},
+  {id:'throne', name:'Controller Throne', price:18, blurb:'Your controller deserves a pedestal. Honestly it earned it.',
+   art:'<svg viewBox="0 0 52 52"><path d="M14 40h24M18 40c-2-8 2-12 8-12s10 4 8 12"/><path d="M16 22c1-5 6-8 10-8s9 3 10 8c.8 4-2 6-4 4-1.5-1.5-2.5-3-6-3s-4.5 1.5-6 3c-2 2-4.8 0-4-4z"/><circle cx="21" cy="20" r="1.2"/><circle cx="31" cy="20" r="1.2"/></svg>'}
+];
+const SHOP_SIZES = { S:{mult:.75, hint:'~7 cm'}, M:{mult:1, hint:'~11 cm'}, L:{mult:1.4, hint:'~15 cm'} };
+const SHOP_SHIP = { pickup:{label:'Pickup at next deployment', fee:0},
+                    dropoff:{label:'Local LA drop-off', fee:8},
+                    ship:{label:'Ship it', fee:6} };
+/* Optional: per-item Stripe Payment Links for single-item instant buy.
+   Create links in the Stripe dashboard, then fill in e.g. dragon:'https://buy.stripe.com/XXXX' */
+const STRIPE_LINKS = {};
+const PICKUP_SPOTS = [
+  'Next public deployment — schedule @marvelous3dprinting',
+  'DTLA Arts District window — Sat 10:00–14:00',
+  'Culver City rig meetup — Sun 11:00–15:00'
+];
+const shop = {
+  view:'catalog', itemId:null,
+  cfg:{ color:'#6fe8dc', size:'M', finish:'matte', qty:1, text:'' },
+  cart:[], code:'', delivery:'pickup', pickupSpot:0, location:'',
+  buyName:'', buyContact:'', orderCode:'', paidBanner:false
+};
+
+function shopUnit(item, cfg){
+  return item.price * SHOP_SIZES[cfg.size].mult + (cfg.finish === 'silk' ? 2 : 0);
+}
+function shopTotals(){
+  const sub = shop.cart.reduce((a,l)=> a + l.unit*l.qty, 0);
+  const fee = SHOP_SHIP[shop.delivery].fee;
+  const disc = shop.code.trim().toUpperCase() === 'FULLSYNC' ? sub * .05 : 0;
+  return { sub, fee, disc, grand: sub + fee - disc };
+}
+function updateCartBadge(){
+  const b = document.getElementById('cartBadge');
+  if(!b) return;
+  const n = shop.cart.reduce((a,l)=> a + l.qty, 0);
+  b.textContent = n;
+  b.style.display = n ? 'flex' : 'none';
+}
+
+function wireShop(){ renderShop(); }
+function renderShop(){
+  const root = document.getElementById('shopRoot');
+  if(!root) return;
+  const n = shop.cart.reduce((a,l)=> a + l.qty, 0);
+  const tabs = `<div class="shop-tabs">
+    <button class="shop-tab${shop.view!=='cart' && shop.view!=='checkout' && shop.view!=='done' ? ' on':''}" data-sv="catalog">CATALOG</button>
+    <button class="shop-tab${shop.view==='cart'||shop.view==='checkout' ? ' on':''}" data-sv="cart">CART${n ? ' ('+n+')' : ''}</button>
+  </div>`;
+
+  if(shop.view === 'catalog'){
+    root.innerHTML = tabs + `<p>Small-batch goods printed on the rig between missions. Every piece is customized before checkout — pick a colorway, size it, make it yours.</p>
+      <div class="shop-grid">${SHOP_ITEMS.map(it=>`
+        <button class="shop-card" data-item="${it.id}">
+          <span class="shop-thumb">${it.art}</span>
+          <span class="shop-info"><h5>${it.name}</h5><span>from $${(it.price*SHOP_SIZES.S.mult).toFixed(0)}</span></span>
+        </button>`).join('')}
+      </div>
+      <p class="forge-note">All drops printed to order in your colorway — allow 3–5 days before pickup or delivery.</p>`;
+  }
+
+  else if(shop.view === 'item'){
+    const it = SHOP_ITEMS.find(x=> x.id === shop.itemId);
+    const c = shop.cfg;
+    root.innerHTML = tabs + `
+      <button class="back-link" data-sv="catalog">← ALL DROPS</button>
+      <div class="shop-thumb big" style="border-radius:13px;margin-bottom:12px">${it.art}</div>
+      <h5 style="font-size:15px;font-weight:500;margin-bottom:4px">${it.name}</h5>
+      <p style="margin-bottom:14px">${it.blurb}</p>
+      <div class="swatches" id="sh-sw">${FORGE_SWATCH.map(col=>
+        `<button class="sw${col===c.color?' on':''}" data-c="${col}" style="background:${col}" aria-label="Color ${col}"></button>`).join('')}</div>
+      <div class="size-pills" id="sh-size">${Object.keys(SHOP_SIZES).map(k=>
+        `<button class="size-pill${k===c.size?' on':''}" data-s="${k}">${k} · ${SHOP_SIZES[k].hint}</button>`).join('')}</div>
+      <div class="forge-row"><label>FINISH</label>
+        <select id="sh-fin">
+          <option value="matte"${c.finish==='matte'?' selected':''}>Matte</option>
+          <option value="silk"${c.finish==='silk'?' selected':''}>Silk (+$2)</option>
+        </select></div>
+      ${it.custom ? `<div class="field"><label for="sh-text">YOUR TEXT (UP TO 12 CHARS)</label>
+        <input id="sh-text" type="text" maxlength="12" placeholder="AKMANE" value="${c.text.replace(/"/g,'&quot;')}"></div>` : ''}
+      <div class="qty-row"><label style="font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--ice-faint)">QTY</label>
+        <button class="qty-btn" id="sh-minus">−</button><span class="qty-n" id="sh-qty">${c.qty}</span><button class="qty-btn" id="sh-plus">+</button></div>
+      <div class="price-big" id="sh-price"></div>
+      <div class="cta-row"><button class="cta solid" id="sh-add">Add to cart</button>${STRIPE_LINKS[it.id] ? '<button class="cta" id="sh-instant">Instant buy — Stripe</button>' : ''}</div>`;
+
+    const priceEl = document.getElementById('sh-price');
+    const refresh = ()=>{ priceEl.textContent = '$' + (shopUnit(it, c)*c.qty).toFixed(2); };
+    refresh();
+    document.getElementById('sh-sw').addEventListener('click', e=>{
+      const b = e.target.closest('.sw'); if(!b) return;
+      c.color = b.dataset.c;
+      [...e.currentTarget.children].forEach(x=> x.classList.toggle('on', x===b));
+      sfx.key();
+    });
+    document.getElementById('sh-size').addEventListener('click', e=>{
+      const b = e.target.closest('.size-pill'); if(!b) return;
+      c.size = b.dataset.s;
+      [...e.currentTarget.children].forEach(x=> x.classList.toggle('on', x===b));
+      refresh(); sfx.key();
+    });
+    document.getElementById('sh-fin').addEventListener('change', e=>{ c.finish = e.target.value; refresh(); sfx.key(); });
+    const txt = document.getElementById('sh-text');
+    if(txt) txt.addEventListener('input', ()=>{ c.text = txt.value; });
+    document.getElementById('sh-minus').addEventListener('click', ()=>{ if(c.qty>1){ c.qty--; document.getElementById('sh-qty').textContent=c.qty; refresh(); sfx.key(); } });
+    document.getElementById('sh-plus').addEventListener('click', ()=>{ if(c.qty<20){ c.qty++; document.getElementById('sh-qty').textContent=c.qty; refresh(); sfx.key(); } });
+    document.getElementById('sh-add').addEventListener('click', ()=>{
+      shop.cart.push({ id:it.id, name:it.name, color:c.color, size:c.size, finish:c.finish,
+        qty:c.qty, text: it.custom ? (c.text.trim() || '—') : '', unit: shopUnit(it, c) });
+      shop.cfg = { color:c.color, size:'M', finish:'matte', qty:1, text:'' };
+      updateCartBadge(); sfx.coin();
+      shop.view = 'cart'; renderShop();
+    });
+    const ib = document.getElementById('sh-instant');
+    if(ib) ib.addEventListener('click', ()=>{
+      const base = STRIPE_LINKS[shop.itemId];
+      window.location.href = base + (base.includes('?') ? '&' : '?') +
+        'client_reference_id=MRV' + Math.random().toString(36).slice(2,6).toUpperCase();
+    });
+  }
+
+  else if(shop.view === 'cart'){
+    const t = shopTotals();
+    root.innerHTML = tabs + (shop.cart.length === 0
+      ? `<p>Cart's empty. The dragons are waiting.</p><div class="cta-row"><button class="cta" data-sv="catalog">Browse drops</button></div>`
+      : `${shop.cart.map((l,i)=>`
+        <div class="cart-line">
+          <div class="ci"><h5>${l.qty}× ${l.name}</h5>
+            <p>${l.size} · ${l.finish} · <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${l.color};vertical-align:-1px"></span> ${l.color}${l.text ? ' · “'+l.text+'”' : ''}</p></div>
+          <span class="cp">$${(l.unit*l.qty).toFixed(2)}</span>
+          <button class="cart-x" data-rm="${i}" aria-label="Remove">✕</button>
+        </div>`).join('')}
+      <div class="cart-total"><span>SUBTOTAL</span><span>$${t.sub.toFixed(2)}</span></div>
+      <div class="cta-row"><button class="cta solid" id="sh-checkout">Checkout</button><button class="cta" data-sv="catalog">Keep browsing</button></div>`);
+    root.querySelectorAll('[data-rm]').forEach(b=> b.addEventListener('click', ()=>{
+      shop.cart.splice(+b.dataset.rm, 1);
+      updateCartBadge(); sfx.close(); renderShop();
+    }));
+    const co = document.getElementById('sh-checkout');
+    if(co) co.addEventListener('click', openTerminal);
+  }
+
+  else if(shop.view === 'done'){
+    root.innerHTML = tabs + `
+      <div class="forge-est" style="text-align:center;padding:22px 16px">
+        <div class="big" style="margin-bottom:8px">ORDER RECEIVED</div>
+        <p style="margin:0">${shop.paidBanner ? 'Payment received. ' : ''}Order code <b style="font-family:var(--mono)">${shop.orderCode}</b> — we confirm within one business day.</p>
+      </div>
+      <div class="cta-row"><button class="cta" data-sv="catalog">Back to drops</button></div>`;
+  }
+
+  root.querySelectorAll('[data-sv]').forEach(b=> b.addEventListener('click', ()=>{
+    shop.view = b.dataset.sv; renderShop(); sfx.hover();
+  }));
+  root.querySelectorAll('[data-item]').forEach(b=> b.addEventListener('click', ()=>{
+    shop.itemId = b.dataset.item; shop.view = 'item'; renderShop(); sfx.open();
+  }));
+}
+
+/* ============ GENERATIVE CHECKOUT TERMINAL ============ */
+function hashStr(s){ let h = 1779033703 ^ s.length;
+  for(let i=0;i<s.length;i++){ h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h<<13 | h>>>19; }
+  return h>>>0; }
+function mulberry(a){ return function(){ a|=0; a = a + 0x6D2B79F5 | 0;
+  let t = Math.imul(a ^ a>>>15, 1|a); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t;
+  return ((t ^ t>>>14)>>>0)/4294967296; }; }
+const TERM_ADJ = ['NEON','VOID','CHROME','LUCID','PRISM','FERAL','HOLLOW','SOLAR','GHOST','ULTRA','VELVET','STATIC','OPAL','ZERO'];
+const TERM_NOUN = ['PILGRIM','GARDEN','ORACLE','CIRCUIT','MIRAGE','HALO','SERPENT','LAGOON','RELAY','BLOOM','VECTOR','TEMPLE','COMET','SIGNAL'];
+let termRoll = 0;
+
+function genTermStyle(seedStr){
+  const r = mulberry(hashStr(seedStr));
+  const h0 = Math.floor(r()*360);
+  const spread = [0, 40 + r()*80, -(30 + r()*70)];
+  const cols = spread.map(d=> 'hsl(' + ((h0+d+360)%360|0) + ' ' + (70+r()*20|0) + '% ' + (62+r()*10|0) + '%)');
+  const patterns = ['rays','rings','lattice','waves','shards','orbits'];
+  const pat = patterns[Math.floor(r()*patterns.length)];
+  const fonts = ["'Anton',sans-serif","'Michroma',sans-serif","'Space Mono',monospace"];
+  const font = fonts[Math.floor(r()*fonts.length)];
+  const cham = [8 + r()*26, 8 + r()*26].map(v=> v.toFixed(0));
+  const scan = 6 + Math.floor(r()*6);
+  const name = TERM_ADJ[Math.floor(r()*TERM_ADJ.length)] + ' ' + TERM_NOUN[Math.floor(r()*TERM_NOUN.length)];
+  return { r, cols, pat, font, cham, scan, name };
+}
+function genPattern(st){
+  const r = st.r, c = st.cols, o = [], W = 800, H = 1200;
+  if(st.pat === 'rays'){
+    const cx = r()*W, cy = r()*H*.5, n = 18 + r()*14;
+    for(let i=0;i<n;i++){ const a = r()*6.283;
+      o.push('<line x1="'+cx.toFixed(0)+'" y1="'+cy.toFixed(0)+'" x2="'+(cx+Math.cos(a)*1500).toFixed(0)+'" y2="'+(cy+Math.sin(a)*1500).toFixed(0)+'" stroke="'+c[i%3]+'" stroke-opacity="'+(.05+r()*.07).toFixed(3)+'"/>'); }
+  } else if(st.pat === 'rings'){
+    const cx = r()*W, cy = r()*H;
+    for(let i=0;i<12;i++){ const dash = r() < .5 ? '' : ' stroke-dasharray="'+(4+r()*8|0)+' '+(6+r()*10|0)+'"';
+      o.push('<circle cx="'+cx.toFixed(0)+'" cy="'+cy.toFixed(0)+'" r="'+(60+i*(50+r()*40)).toFixed(0)+'" fill="none" stroke="'+c[i%3]+'" stroke-opacity="'+(.04+r()*.07).toFixed(3)+'"'+dash+'/>'); }
+  } else if(st.pat === 'lattice'){
+    const g = 60 + r()*50;
+    for(let x=g/2; x<W; x+=g) for(let y=g/2; y<H; y+=g){
+      if(r() < .5) continue; const s = 2 + r()*4;
+      o.push('<path d="M'+(x-s).toFixed(1)+' '+y.toFixed(1)+'h'+(s*2).toFixed(1)+'M'+x.toFixed(1)+' '+(y-s).toFixed(1)+'v'+(s*2).toFixed(1)+'" stroke="'+c[Math.floor(r()*3)]+'" stroke-opacity="'+(.06+r()*.08).toFixed(3)+'"/>'); }
+  } else if(st.pat === 'waves'){
+    for(let i=0;i<8;i++){ const y = r()*H, amp = 20 + r()*60, per = 120 + r()*200;
+      let d = 'M0 ' + y.toFixed(1);
+      for(let x=0; x<=W; x+=20) d += ' L' + x + ' ' + (y + Math.sin(x/per*6.283 + i)*amp).toFixed(1);
+      o.push('<path d="'+d+'" fill="none" stroke="'+c[i%3]+'" stroke-opacity="'+(.05+r()*.07).toFixed(3)+'"/>'); }
+  } else if(st.pat === 'shards'){
+    for(let i=0;i<14;i++){ const x = r()*W, y = r()*H, s = 30 + r()*140;
+      o.push('<path d="M'+x.toFixed(0)+' '+y.toFixed(0)+' L'+(x+s*(r()-.5)*2).toFixed(0)+' '+(y+s).toFixed(0)+' L'+(x+s*(r()-.5)*2).toFixed(0)+' '+(y-s*r()).toFixed(0)+' Z" fill="none" stroke="'+c[i%3]+'" stroke-opacity="'+(.05+r()*.08).toFixed(3)+'"/>'); }
+  } else {
+    for(let i=0;i<7;i++){ const cx = r()*W, cy = r()*H, rx = 80 + r()*260, ry = rx*(.3+r()*.5), rot = (r()*180).toFixed(0);
+      o.push('<ellipse cx="'+cx.toFixed(0)+'" cy="'+cy.toFixed(0)+'" rx="'+rx.toFixed(0)+'" ry="'+ry.toFixed(0)+'" transform="rotate('+rot+' '+cx.toFixed(0)+' '+cy.toFixed(0)+')" fill="none" stroke="'+c[i%3]+'" stroke-opacity="'+(.05+r()*.07).toFixed(3)+'"/>'); }
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%">'+o.join('')+'</svg>';
+}
+function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function openTerminal(){
+  if(shop.cart.length === 0) return;
+  shop.orderCode = 'MRV-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  termRoll = 0;
+  renderTerminal();
+  document.getElementById('terminal').classList.add('open');
+  document.getElementById('terminal').scrollTop = 0;
+  sfx.open();
+}
+function closeTerminal(){
+  document.getElementById('terminal').classList.remove('open');
+  sfx.close();
+}
+function refreshTermTotals(){
+  const t = shopTotals(), g = id=> document.getElementById(id);
+  if(!g('tm-grand')) return;
+  g('tm-sub').textContent = '$' + t.sub.toFixed(2);
+  g('tm-fee').textContent = '$' + t.fee.toFixed(2);
+  g('tm-discrow').style.display = t.disc ? 'flex' : 'none';
+  g('tm-disc').textContent = '−$' + t.disc.toFixed(2);
+  g('tm-grand').textContent = '$' + t.grand.toFixed(2);
+}
+function renderTerminal(){
+  const el = document.getElementById('terminal');
+  const st = genTermStyle(shop.orderCode + ':' + termRoll);
+  const t = shopTotals();
+  el.style.setProperty('--t1', st.cols[0]);
+  el.style.setProperty('--t2', st.cols[1]);
+  el.style.setProperty('--t3', st.cols[2]);
+  const clip = 'polygon(' + st.cham[0] + 'px 0,100% 0,100% calc(100% - ' + st.cham[1] + 'px),calc(100% - ' + st.cham[1] + 'px) 100%,0 100%,0 ' + st.cham[0] + 'px)';
+  const locBlock = shop.delivery === 'pickup'
+    ? '<div class="field"><label for="tm-spot">PICKUP POINT</label><select id="tm-spot">' +
+      PICKUP_SPOTS.map((s,i)=> '<option value="'+i+'"'+(i===shop.pickupSpot?' selected':'')+'>'+s+'</option>').join('') +
+      '</select></div>'
+    : '<div class="field"><label for="tm-loc">' + (shop.delivery==='ship' ? 'SHIPPING ADDRESS' : 'DROP ZONE ADDRESS (LA COUNTY)') +
+      '</label><textarea id="tm-loc" placeholder="Street, city, zip">' + escAttr(shop.location) + '</textarea></div>';
+
+  el.innerHTML = `
+  <div class="term-bg">
+    <div style="position:absolute;inset:0;background:
+      radial-gradient(60% 42% at ${(20+st.r()*60).toFixed(0)}% ${(st.r()*30).toFixed(0)}%, ${st.cols[0]}26, transparent 70%),
+      radial-gradient(52% 40% at ${(st.r()*100).toFixed(0)}% ${(60+st.r()*40).toFixed(0)}%, ${st.cols[2]}20, transparent 72%),
+      #05060f"></div>
+    ${genPattern(st)}
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,${st.cols[1]}0d 0 1px,transparent 1px ${st.scan}px)"></div>
+  </div>
+  <div class="term-wrap">
+    <div class="term-panel" style="clip-path:${clip}">
+      <div class="term-head">
+        <div>
+          <div class="term-eyebrow">CHECKOUT TERMINAL // ${shop.orderCode}</div>
+          <div class="term-title" style="font-family:${st.font}">${st.name}</div>
+        </div>
+        <div class="term-actions">
+          <button class="dice-btn" id="tm-roll" title="Regenerate this terminal's style">⟳ REROLL</button>
+          <button class="panel-close" id="tm-close" aria-label="Close checkout">
+            <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 1l10 10M11 1L1 11"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="term-sec">ORDER</div>
+      ${shop.cart.map(l=> '<div class="cart-line"><div class="ci"><h5>'+l.qty+'× '+l.name+'</h5><p>'+l.size+' · '+l.finish+' · '+l.color+(l.text?' · \u201c'+escAttr(l.text)+'\u201d':'')+'</p></div><span class="cp">$'+(l.unit*l.qty).toFixed(2)+'</span></div>').join('')}
+      <div class="term-sec">DELIVERY</div>
+      <div class="del-cards" id="tm-del">${Object.entries(SHOP_SHIP).map(([k,v])=>
+        '<button class="del-card'+(k===shop.delivery?' on':'')+'" data-del="'+k+'"><b>'+v.label+'</b><span>'+(v.fee?'+$'+v.fee:'FREE')+'</span></button>').join('')}
+      </div>
+      ${locBlock}
+      <div class="term-sec">CONTACT</div>
+      <div class="field"><label for="tm-name">CALLSIGN / NAME</label><input id="tm-name" type="text" value="${escAttr(shop.buyName)}" placeholder="Ada Reyes" autocomplete="name"></div>
+      <div class="field"><label for="tm-contact">EMAIL / PHONE</label><input id="tm-contact" type="text" value="${escAttr(shop.buyContact)}" placeholder="for confirmation + receipt" autocomplete="email"></div>
+      <div class="field"><label for="tm-code">PROMO CODE</label><input id="tm-code" type="text" value="${escAttr(shop.code)}" placeholder="FULLSYNC?"></div>
+      <div class="cart-total"><span>SUBTOTAL</span><span id="tm-sub">$${t.sub.toFixed(2)}</span></div>
+      <div class="cart-total"><span>DELIVERY</span><span id="tm-fee">$${t.fee.toFixed(2)}</span></div>
+      <div class="cart-total" id="tm-discrow" style="display:${t.disc?'flex':'none'}"><span>FULLSYNC −5%</span><span id="tm-disc">−$${t.disc.toFixed(2)}</span></div>
+      <div class="cart-total grand"><span>TOTAL</span><span id="tm-grand">$${t.grand.toFixed(2)}</span></div>
+      <div class="cta-row" style="margin-top:16px">
+        <button class="cta solid" id="tm-pay">Pay with card — Stripe</button>
+        <button class="cta" id="tm-req">Transmit as request</button>
+      </div>
+      <p class="forge-note" id="tm-note">Card payments open Stripe's secure page — the final total is confirmed there. No card? Transmit as a request and pay on delivery.</p>
+    </div>
+  </div>`;
+
+  document.getElementById('tm-roll').addEventListener('click', ()=>{ termRoll++; sfx.scan(); renderTerminal(); });
+  document.getElementById('tm-close').addEventListener('click', closeTerminal);
+  document.getElementById('tm-del').addEventListener('click', e=>{
+    const b = e.target.closest('.del-card'); if(!b) return;
+    shop.delivery = b.dataset.del; sfx.key(); renderTerminal();
+  });
+  const spot = document.getElementById('tm-spot');
+  if(spot) spot.addEventListener('change', e=>{ shop.pickupSpot = +e.target.value; sfx.key(); });
+  const loc = document.getElementById('tm-loc');
+  if(loc) loc.addEventListener('input', ()=>{ shop.location = loc.value; });
+  document.getElementById('tm-name').addEventListener('input', e=>{ shop.buyName = e.target.value; });
+  document.getElementById('tm-contact').addEventListener('input', e=>{ shop.buyContact = e.target.value; });
+  document.getElementById('tm-code').addEventListener('input', e=>{ shop.code = e.target.value; refreshTermTotals(); });
+  document.getElementById('tm-pay').addEventListener('click', payStripe);
+  document.getElementById('tm-req').addEventListener('click', terminalRequest);
+}
+
+function termLocation(){
+  return shop.delivery === 'pickup' ? PICKUP_SPOTS[shop.pickupSpot] : shop.location.trim();
+}
+async function payStripe(){
+  const note = document.getElementById('tm-note');
+  const btn = document.getElementById('tm-pay');
+  if(shop.delivery === 'dropoff' && !shop.location.trim()){
+    note.textContent = 'Add a drop zone address so the rig knows where to roll.'; sfx.err(); return;
+  }
+  btn.disabled = true;
+  note.textContent = 'OPENING SECURE CHANNEL…';
+  const contact = shop.buyContact.trim();
+  const body = {
+    order_code: shop.orderCode,
+    items: shop.cart.map(l=> ({id:l.id, name:l.name, size:l.size, finish:l.finish, color:l.color, qty:l.qty, text:l.text})),
+    delivery: shop.delivery,
+    location: termLocation(),
+    promo: shop.code.trim(),
+    name: shop.buyName.trim(),
+    email: contact.includes('@') ? contact : ''
+  };
+  const ab = new AbortController();
+  const tmr = setTimeout(()=> ab.abort(), 9000);
+  try{
+    const r = await fetch('/api/checkout', { method:'POST', signal:ab.signal,
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    clearTimeout(tmr);
+    const d = await r.json().catch(()=> ({}));
+    if(!r.ok || !d.url) throw new Error(d.error || 'no session');
+    note.textContent = 'HANDOFF TO STRIPE…';
+    sfx.send();
+    window.location.href = d.url;
+  }catch(err){
+    clearTimeout(tmr);
+    const ids = [...new Set(shop.cart.map(l=> l.id))];
+    if(ids.length === 1 && STRIPE_LINKS[ids[0]]){
+      const base = STRIPE_LINKS[ids[0]];
+      note.textContent = 'USING PAYMENT LINK…';
+      sfx.send();
+      window.location.href = base + (base.includes('?') ? '&' : '?') +
+        'client_reference_id=' + shop.orderCode.replace(/[^\w-]/g,'');
+      return;
+    }
+    btn.disabled = false;
+    note.textContent = 'Card channel offline on this deploy — use \u201cTransmit as request\u201d and we\u2019ll invoice you.';
+    sfx.err();
+  }
+}
+async function terminalRequest(){
+  const note = document.getElementById('tm-note');
+  const btn = document.getElementById('tm-req');
+  const contact = shop.buyContact.trim();
+  if(!contact){ note.textContent = 'Add an email or phone so we can confirm your order.'; sfx.err(); return; }
+  if(shop.delivery !== 'pickup' && !shop.location.trim()){
+    note.textContent = 'Add the address for your ' + (shop.delivery==='ship' ? 'shipment' : 'drop-off') + '.'; sfx.err(); return;
+  }
+  const t = shopTotals();
+  const lines = shop.cart.map(l=>
+    l.qty + '\u00d7 ' + l.name + ' \u2014 ' + l.size + ' \u00b7 ' + l.finish + ' \u00b7 ' + l.color +
+    (l.text ? ' \u00b7 text: "' + l.text + '"' : '') + ' \u2014 $' + (l.unit*l.qty).toFixed(2));
+  const orderText = lines.join('\n') +
+    '\nDelivery: ' + SHOP_SHIP[shop.delivery].label + (t.fee ? ' (+$' + t.fee.toFixed(2) + ')' : '') +
+    ' \u2014 ' + (termLocation() || 'TBD') +
+    (t.disc ? '\nPromo: FULLSYNC (\u2212$' + t.disc.toFixed(2) + ')' : '') +
+    '\nTOTAL: $' + t.grand.toFixed(2) +
+    '\nOrder code: ' + shop.orderCode;
+  btn.disabled = true;
+  note.textContent = 'Transmitting order\u2026';
+  const ab = new AbortController();
+  const tmr = setTimeout(()=> ab.abort(), 8000);
+  try{
+    const r = await fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz', {
+      method:'POST', signal:ab.signal,
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({ _subject: 'Shop order ' + shop.orderCode + ' \u2014 $' + t.grand.toFixed(2),
+        name: shop.buyName.trim() || '\u2014', reply_channel: contact, order: orderText })
+    });
+    clearTimeout(tmr);
+    if(!r.ok) throw new Error('bad status');
+    shop.cart = []; shop.code = ''; shop.paidBanner = false;
+    updateCartBadge();
+    closeTerminal();
+    shop.view = 'done'; renderShop();
+    sfx.send(); sfx.coin();
+  }catch(err){
+    clearTimeout(tmr);
+    note.textContent = 'Direct channel busy \u2014 opening your mail app with the order pre-filled instead.';
+    sfx.send();
+    const subject = encodeURIComponent('Shop order ' + shop.orderCode + ' \u2014 $' + t.grand.toFixed(2));
+    const bodyTxt = encodeURIComponent('Name: ' + (shop.buyName.trim()||'\u2014') + '\nReply channel: ' + contact + '\n\n' + orderText);
+    window.location.href = 'mailto:dispatch@marvelous3d.biz?subject=' + subject + '&body=' + bodyTxt;
+    btn.disabled = false;
+  }
+}
+
+/* return from Stripe: show result state */
+(function(){
+  const q = new URLSearchParams(location.search);
+  const chk = q.get('checkout');
+  if(!chk) return;
+  history.replaceState({}, '', location.pathname);
+  endBoot();
+  if(chk === 'success'){
+    shop.orderCode = (q.get('order') || 'MRV-PAID').replace(/[^\w-]/g,'');
+    shop.cart = []; updateCartBadge();
+    shop.paidBanner = true;
+    shop.view = 'done';
+  } else {
+    shop.view = 'cart';
+  }
+  setTimeout(()=> select('drops'), 350);
+})();
+
 /* ================= KEYBOARD ================= */
 window.addEventListener('keydown', e=>{
   if(e.__bootSkip) return;
+  const termEl = document.getElementById('terminal');
+  if(termEl && termEl.classList.contains('open')){
+    if(e.key === 'Escape') closeTerminal();
+    return;
+  }
   if(e.key === 'Escape'){ closePanel(); return; }
   const tag = e.target && e.target.tagName;
   if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
