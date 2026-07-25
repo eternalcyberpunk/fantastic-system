@@ -1,0 +1,7 @@
+{
+  "name": "marvelous3d-site",
+  "private": true,
+  "dependencies": {
+    "@vercel/blob": "latest"
+  }
+}
