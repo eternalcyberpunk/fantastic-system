@@ -224,6 +224,10 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .chip{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ice-dim);
   border:1px solid var(--edge);border-radius:999px;padding:7px 12px}
 .chip b{color:var(--prism-cyan);font-weight:400}
+button.chip{cursor:pointer;transition:.2s}
+button.chip:hover{border-color:rgba(255,138,138,.5)}
+.chip .fx{margin-left:6px;color:var(--ice-faint)}
+button.chip:hover .fx{color:#ff8a8a}
 .footnote{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ice-faint);
   margin-top:14px;line-height:1.6}
 
@@ -672,6 +676,11 @@ const NODES = [
      <option>Props / cosplay</option><option>Small-batch run</option><option>3D scanning</option><option>Not sure yet</option>
    </select></div>
    <div class="field"><label for="f-brief">MISSION BRIEF</label><textarea id="f-brief" placeholder="What are we printing, roughly how many, and where do we deploy?"></textarea></div>
+   <div class="field"><label>FILES — STL / OBJ / 3MF / ZIP / IMAGES</label>
+     <div class="chips" id="upFileChips" style="margin-top:4px"></div>
+     <button class="cta" id="upAdd" style="margin-top:10px">Attach files</button>
+     <input type="file" id="upFileInput" multiple accept=".stl,.obj,.3mf,.step,.stp,.zip,.png,.jpg,.jpeg" style="display:none">
+   </div>
    <div class="cta-row"><button class="cta solid" id="transmit">Transmit request</button></div>
    <p class="footnote" id="txNote"></p>
    <div class="uplink-direct">
@@ -1006,6 +1015,45 @@ panelBody.addEventListener('keydown', e=>{
 });
 
 /* ================= UPLINK ================= */
+/* ---- attachment helpers (shared by uplink + forge) ---- */
+const ATTACH_LIMIT = 10 * 1024 * 1024; /* keep within FormSubmit's email-friendly budget */
+function fmtSize(b){ return b < 1048576 ? Math.max(1, Math.round(b/1024)) + ' KB' : (b/1048576).toFixed(1) + ' MB'; }
+async function gzipBlob(blob){
+  if(!('CompressionStream' in window)) return null;
+  try{
+    const stream = blob.stream().pipeThrough(new CompressionStream('gzip'));
+    const buf = await new Response(stream).arrayBuffer();
+    return new Blob([buf]);
+  }catch(e){ return null; }
+}
+async function buildAttachments(files, progress){
+  const total = files.reduce((a,f)=> a + f.blob.size, 0);
+  if(total <= ATTACH_LIMIT) return files.map(f=> ({name:f.name, blob:f.blob}));
+  if('CompressionStream' in window){
+    if(progress) progress('Compressing files\u2026');
+    const out = []; let t2 = 0;
+    for(const f of files){
+      const skip = /\.(zip|gz|png|jpe?g)$/i.test(f.name);
+      const gz = skip ? null : await gzipBlob(f.blob);
+      const use = (gz && gz.size < f.blob.size) ? {name:f.name + '.gz', blob:gz} : {name:f.name, blob:f.blob};
+      out.push(use); t2 += use.blob.size;
+    }
+    if(t2 <= ATTACH_LIMIT) return out;
+  }
+  return null;
+}
+let uplinkFiles = [];
+function renderUpFiles(){
+  const wrap = document.getElementById('upFileChips');
+  if(!wrap) return;
+  wrap.innerHTML = uplinkFiles.map((f,i)=>
+    '<button class="chip" data-ufx="'+i+'" title="Remove">'+f.name+' \u00b7 '+fmtSize(f.blob.size)+' <span class="fx">\u2715</span></button>').join('') ||
+    '<span class="chip" style="opacity:.55">no files attached</span>';
+  wrap.querySelectorAll('[data-ufx]').forEach(b=> b.addEventListener('click', ()=>{
+    uplinkFiles.splice(+b.dataset.ufx, 1);
+    renderUpFiles(); sfx.close();
+  }));
+}
 let uplinkPrefill = null;
 function wireUplink(){
   const btn = document.getElementById('transmit');
@@ -1013,8 +1061,23 @@ function wireUplink(){
   if(uplinkPrefill){
     document.getElementById('f-brief').value = uplinkPrefill;
     document.getElementById('f-type').value = 'On-site prototyping';
-    document.getElementById('txNote').textContent = 'FORGE specs loaded — add a reply channel and transmit.';
+    document.getElementById('txNote').textContent = 'FORGE specs loaded \u2014 add a reply channel and transmit.';
     uplinkPrefill = null;
+  }
+  renderUpFiles();
+  const addBtn = document.getElementById('upAdd');
+  const fileInp = document.getElementById('upFileInput');
+  if(addBtn && fileInp){
+    addBtn.addEventListener('click', ()=> fileInp.click());
+    fileInp.addEventListener('change', ()=>{
+      [...fileInp.files].forEach(f=>{
+        if(!uplinkFiles.some(x=> x.name === f.name && x.blob.size === f.size)){
+          uplinkFiles.push({name:f.name, blob:f});
+        }
+      });
+      fileInp.value = '';
+      renderUpFiles(); sfx.scan();
+    });
   }
   btn.addEventListener('click', async ()=>{
     const name = document.getElementById('f-name').value.trim();
@@ -1024,32 +1087,63 @@ function wireUplink(){
     const note = document.getElementById('txNote');
     if(!contact){ note.textContent = 'Add a reply channel so we can reach you.'; sfx.err(); return; }
     btn.disabled = true;
-    note.textContent = 'Transmitting…';
+    note.textContent = 'Transmitting\u2026';
+    const fileList = uplinkFiles.length
+      ? '\nFiles: ' + uplinkFiles.map(f=> f.name + ' (' + fmtSize(f.blob.size) + ')').join(', ')
+      : '';
+    let att = null, bigNote = '';
+    if(uplinkFiles.length){
+      att = await buildAttachments(uplinkFiles, m=> note.textContent = m);
+      if(!att) bigNote = '\n[Files exceed the attach limit \u2014 we\u2019ll reply with an upload link.]';
+    }
+    const jsonSend = (extra)=> fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({ _subject: 'Deployment request \u2014 ' + type,
+        name: name || '\u2014', reply_channel: contact, mission_type: type,
+        brief: (brief || '\u2014') + fileList + bigNote + (extra || '') })
+    });
     const ab = new AbortController();
-    const timer = setTimeout(()=> ab.abort(), 8000);
+    const timer = setTimeout(()=> ab.abort(), att ? 90000 : 8000);
     try{
-      const r = await fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz', {
-        method:'POST', signal:ab.signal,
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify({
-          _subject: 'Deployment request — ' + type,
-          name: name || '—', reply_channel: contact, mission_type: type, brief: brief || '—'
-        })
-      });
+      let r;
+      if(att){
+        note.textContent = 'Uploading ' + att.length + ' file(s)\u2026';
+        const fd = new FormData();
+        fd.append('_subject', 'Deployment request \u2014 ' + type);
+        fd.append('name', name || '\u2014');
+        fd.append('reply_channel', contact);
+        fd.append('mission_type', type);
+        fd.append('brief', (brief || '\u2014') + fileList);
+        att.forEach((f,i)=> fd.append('attachment_' + (i+1), f.blob, f.name));
+        r = await fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz',
+          {method:'POST', signal:ab.signal, headers:{'Accept':'application/json'}, body: fd});
+        if(!r.ok){
+          note.textContent = 'Attachment channel refused \u2014 sending specs without files\u2026';
+          att = null;
+          bigNote = '\n[Attachment upload failed \u2014 we\u2019ll reply with an upload link.]';
+          r = await jsonSend();
+        }
+      } else {
+        r = await jsonSend();
+      }
       clearTimeout(timer);
       if(!r.ok) throw new Error('bad status');
-      note.textContent = 'SIGNAL RECEIVED — we reply within one business day.';
-      btn.textContent = 'Transmitted ✓';
+      note.textContent = 'SIGNAL RECEIVED' +
+        (att ? ' \u2014 ' + att.length + ' file(s) attached.'
+             : (uplinkFiles.length ? ' \u2014 file names noted; upload link to follow.' : '')) +
+        ' We reply within one business day.';
+      btn.textContent = 'Transmitted \u2713';
       sfx.send();
     }catch(err){
       clearTimeout(timer);
-      /* channel unreachable — fall back to the visitor's mail app */
-      note.textContent = 'Direct channel busy — opening your mail app with the request pre-filled instead.';
+      note.textContent = 'Direct channel busy \u2014 opening your mail app with the request pre-filled instead.' +
+        (uplinkFiles.length ? ' Attach your files to that email before sending.' : '');
       sfx.send();
-      const subject = encodeURIComponent('Deployment request — ' + type);
-      const body = encodeURIComponent(
-        `Name: ${name || '—'}\nReply channel: ${contact}\nMission type: ${type}\n\nBrief:\n${brief || '—'}`);
-      window.location.href = `mailto:dispatch@marvelous3d.biz?subject=${subject}&body=${body}`;
+      const subject = encodeURIComponent('Deployment request \u2014 ' + type);
+      const body = encodeURIComponent('Name: ' + (name || '\u2014') + '\nReply channel: ' + contact +
+        '\nMission type: ' + type + '\n\nBrief:\n' + (brief || '\u2014') + fileList);
+      window.location.href = 'mailto:dispatch@marvelous3d.biz?subject=' + subject + '&body=' + body;
     }finally{
       btn.disabled = false;
     }
@@ -1073,7 +1167,7 @@ function loadThree(){
 
 const forge = {
   renderer:null, scene:null, camera:null, group:null, mesh:null, mat:null, grid:null,
-  loaded:false, fileName:'', baseDims:[0,0,0], baseVolMM3:0, maxDim:1,
+  loaded:false, fileName:'', files:[], baseDims:[0,0,0], baseVolMM3:0, maxDim:1,
   s:{ color:'#6fe8dc', finish:'matte', scale:100, infill:20, layer:0.2, material:'PLA' },
   yaw:.8, pitch:.5, dist:200, targetY:0, spin:true, dragging:false,
   raf:0, vw:0, bound:false, ptrs:new Map(), pinchD:0, spinTimer:0
@@ -1299,6 +1393,7 @@ async function forgeLoadFile(file){
     if(!posArr || posArr.length < 9) throw new Error('no triangles found');
     if(posArr.length/9 > 1500000) throw new Error('over the 1.5M-triangle cap');
     buildModel(posArr, stl, file.name);
+    rosterAdd(file);
     renderForgeUI();
     sfx.scan(); sweep(420, 1200, .35, 'sine', .04);
   }catch(ex){
@@ -1307,6 +1402,37 @@ async function forgeLoadFile(file){
   }
 }
 
+function rosterAdd(file){
+  if(!forge.files.some(f=> f.name === file.name && f.blob.size === file.size)){
+    forge.files.push({name:file.name, blob:file});
+  }
+}
+function forgeAddFiles(list){
+  const arr = [...list];
+  if(!arr.length) return;
+  arr.forEach(rosterAdd);
+  const model = arr.find(f=> /\.(stl|obj)$/i.test(f.name));
+  if(model) forgeLoadFile(model);
+  else { renderForgeFiles(); sfx.scan(); }
+}
+function renderForgeFiles(){
+  const wrap = document.getElementById('frFiles');
+  if(!wrap) return;
+  wrap.innerHTML = forge.files.map((f,i)=>
+    '<button class="chip" data-fx="'+i+'" title="Remove">'+f.name+' \u00b7 '+fmtSize(f.blob.size)+' <span class="fx">\u2715</span></button>').join('') ||
+    '<span class="chip" style="opacity:.55">no files staged</span>';
+  wrap.querySelectorAll('[data-fx]').forEach(b=> b.addEventListener('click', ()=>{
+    forge.files.splice(+b.dataset.fx, 1);
+    renderForgeFiles(); sfx.close();
+  }));
+  const noteEl = document.getElementById('frFilesNote');
+  if(noteEl){
+    const total = forge.files.reduce((a,f)=> a + f.blob.size, 0);
+    noteEl.textContent = forge.files.length
+      ? 'Total ' + fmtSize(total) + ' \u2014 these ride along when you send specs to uplink (auto-compressed past ' + fmtSize(ATTACH_LIMIT) + ').'
+      : 'Every model loaded here is staged to attach to your uplink transmission.';
+  }
+}
 function renderForgeUI(mode){
   const root = document.getElementById('forgeRoot');
   if(!root) return;
@@ -1319,18 +1445,22 @@ function renderForgeUI(mode){
         <p>.STL or .OBJ · or tap to browse</p>
         <p class="forge-note">Files are parsed on your device — nothing uploads until you transmit specs.</p>
       </div>
-      <input type="file" id="fr-file" accept=".stl,.obj" style="display:none">
+      <input type="file" id="fr-file" accept=".stl,.obj" multiple style="display:none">
       <p class="forge-note" id="fr-err"></p>
+      <div class="term-sec">MISSION FILES</div>
+      <div class="chips" id="frFiles"></div>
+      <p class="forge-note" id="frFilesNote"></p>
       ${forge.loaded ? '<div class="cta-row"><button class="cta" id="fr-back">Back to ' + forge.fileName + '</button></div>' : ''}`;
     const drop = document.getElementById('fr-drop');
     const inp = document.getElementById('fr-file');
     drop.addEventListener('click', ()=> inp.click());
-    inp.addEventListener('change', ()=>{ if(inp.files[0]) forgeLoadFile(inp.files[0]); });
+    inp.addEventListener('change', ()=>{ forgeAddFiles(inp.files); inp.value=''; });
     ['dragover','dragenter'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('over'); }));
     ['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('over'); }));
-    drop.addEventListener('drop', e=>{ if(e.dataTransfer.files[0]) forgeLoadFile(e.dataTransfer.files[0]); });
+    drop.addEventListener('drop', e=>{ forgeAddFiles(e.dataTransfer.files); });
     const back = document.getElementById('fr-back');
     if(back) back.addEventListener('click', ()=> renderForgeUI('loaded'));
+    renderForgeFiles();
     return;
   }
 
@@ -1371,6 +1501,9 @@ function renderForgeUI(mode){
       <div class="spec"><span class="k">PRINT TIME</span><span class="v" id="fr-time"></span></div>
       <div class="big" id="fr-cost"></div>
     </div>
+    <div class="term-sec">MISSION FILES</div>
+    <div class="chips" id="frFiles"></div>
+    <p class="forge-note" id="frFilesNote"></p>
     <div class="cta-row">
       <button class="cta solid" id="fr-send">Send specs to uplink</button>
       <button class="cta" id="fr-new">Load another file</button>
@@ -1421,9 +1554,12 @@ function renderForgeUI(mode){
 Dimensions: ${e2.dims.map(d=>d.toFixed(1)).join(' × ')} mm (scale ${forge.s.scale}%)
 Material: ${forge.s.material} · ${forge.s.finish} finish · color ${forge.s.color}
 Layer ${forge.s.layer.toFixed(2)} mm · Infill ${forge.s.infill}%
-Simulator estimate: ≈ ${e2.grams.toFixed(0)} g · ≈ ${h}h ${String(mn).padStart(2,'0')}m · ≈ $${e2.cost.toFixed(0)}`;
+Simulator estimate: ≈ ${e2.grams.toFixed(0)} g · ≈ ${h}h ${String(mn).padStart(2,'0')}m · ≈ $${e2.cost.toFixed(0)}` +
+      (forge.files.length ? '\nFiles: ' + forge.files.map(f=> f.name).join(', ') : '');
+    uplinkFiles = forge.files.slice();
     select('uplink');
   });
+  renderForgeFiles();
 }
 
 async function wireForge(){
