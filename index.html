@@ -393,6 +393,9 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .del-card span{font-family:var(--mono);font-size:10.5px;color:var(--ice-faint)}
 .del-card.on{border-color:var(--t1,#6fe8dc);box-shadow:0 0 14px rgba(255,255,255,.08),inset 0 0 16px rgba(255,255,255,.03)}
 .del-card.on span{color:var(--t1,#6fe8dc)}
+.term-chan{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;
+  letter-spacing:.16em;color:var(--ice-dim);margin:-6px 0 6px}
+.term-chan i{width:7px;height:7px;border-radius:50%;flex:none}
 @media (max-width:760px){ .term-wrap{padding:18px 10px 60px} .term-panel{padding:20px 15px 22px} }
 
 /* ============ TOAST ============ */
@@ -1466,7 +1469,8 @@ const shop = {
   view:'catalog', itemId:null,
   cfg:{ color:'#6fe8dc', size:'M', finish:'matte', qty:1, text:'' },
   cart:[], code:'', delivery:'pickup', pickupSpot:0, location:'',
-  buyName:'', buyContact:'', orderCode:'', paidBanner:false
+  buyName:'', buyContact:'', orderCode:'', paidBanner:false,
+  channel:{state:'unknown', msg:''}
 };
 
 function shopUnit(item, cfg){
@@ -1660,6 +1664,46 @@ function genPattern(st){
 }
 function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
+async function checkChannel(){
+  shop.channel = {state:'checking', msg:''};
+  updateChannelBadge();
+  try{
+    const ab = new AbortController();
+    const t = setTimeout(()=> ab.abort(), 6000);
+    const r = await fetch('/api/checkout', {method:'GET', signal:ab.signal});
+    clearTimeout(t);
+    if(r.status === 404){ shop.channel = {state:'off', msg:'CARD API NOT ON THIS DEPLOY'}; }
+    else{
+      let d = {}; try{ d = await r.json(); }catch(e){}
+      if(r.ok && d.ok){
+        shop.channel = d.stripe_key_configured
+          ? {state:'online', msg:'CARD CHANNEL ONLINE'}
+          : {state:'warn', msg:'API LIVE \u2014 STRIPE KEY NOT SET'};
+      } else if(r.status === 405){
+        shop.channel = {state:'online', msg:'CARD CHANNEL ONLINE'};
+      } else {
+        shop.channel = {state:'warn', msg:'CHANNEL ERROR ' + r.status};
+      }
+    }
+  }catch(err){
+    shop.channel = {state:'off', msg:'OFFLINE HERE \u2014 WORKS ON LIVE SITE'};
+  }
+  updateChannelBadge();
+}
+function updateChannelBadge(){
+  const b = document.getElementById('tm-chan');
+  if(!b) return;
+  const map = {
+    checking:['#ffd166','CHECKING CARD CHANNEL\u2026'],
+    online:['#3ddc84', shop.channel.msg],
+    warn:['#ffd166', shop.channel.msg],
+    off:['#ff5d5d', shop.channel.msg],
+    unknown:['#ffd166','\u2026']
+  };
+  const m = map[shop.channel.state] || map.unknown;
+  b.innerHTML = '<i style="background:' + m[0] + ';box-shadow:0 0 8px ' + m[0] + '"></i>' + m[1];
+}
+
 function openTerminal(){
   if(shop.cart.length === 0) return;
   shop.orderCode = 'MRV-' + Math.random().toString(36).slice(2,6).toUpperCase();
@@ -1668,6 +1712,7 @@ function openTerminal(){
   document.getElementById('terminal').classList.add('open');
   document.getElementById('terminal').scrollTop = 0;
   sfx.open();
+  checkChannel();
 }
 function closeTerminal(){
   document.getElementById('terminal').classList.remove('open');
@@ -1720,6 +1765,7 @@ function renderTerminal(){
           </button>
         </div>
       </div>
+      <div class="term-chan" id="tm-chan"></div>
       <div class="term-sec">ORDER</div>
       ${shop.cart.map(l=> '<div class="cart-line"><div class="ci"><h5>'+l.qty+'× '+l.name+'</h5><p>'+l.size+' · '+l.finish+' · '+l.color+(l.text?' · \u201c'+escAttr(l.text)+'\u201d':'')+'</p></div><span class="cp">$'+(l.unit*l.qty).toFixed(2)+'</span></div>').join('')}
       <div class="term-sec">DELIVERY</div>
@@ -1758,6 +1804,7 @@ function renderTerminal(){
   document.getElementById('tm-code').addEventListener('input', e=>{ shop.code = e.target.value; refreshTermTotals(); });
   document.getElementById('tm-pay').addEventListener('click', payStripe);
   document.getElementById('tm-req').addEventListener('click', terminalRequest);
+  updateChannelBadge();
 }
 
 function termLocation(){
@@ -1788,7 +1835,11 @@ async function payStripe(){
       headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
     clearTimeout(tmr);
     const d = await r.json().catch(()=> ({}));
-    if(!r.ok || !d.url) throw new Error(d.error || 'no session');
+    if(!r.ok || !d.url){
+      const e = new Error(d.error || '');
+      e.status = r.status;
+      throw e;
+    }
     note.textContent = 'HANDOFF TO STRIPE…';
     sfx.send();
     window.location.href = d.url;
@@ -1804,7 +1855,13 @@ async function payStripe(){
       return;
     }
     btn.disabled = false;
-    note.textContent = 'Card channel offline on this deploy — use \u201cTransmit as request\u201d and we\u2019ll invoice you.';
+    let why;
+    if(err && err.name === 'AbortError') why = 'Checkout timed out \u2014 try again in a moment.';
+    else if(err && err.status === 404) why = 'The /api/checkout function isn\u2019t on this deploy \u2014 commit api/checkout.js in an api folder at the repo root, then push.';
+    else if(err && /STRIPE_SECRET_KEY/.test(err.message || '')) why = 'API is live but STRIPE_SECRET_KEY isn\u2019t set in Vercel \u2014 add the env var, then redeploy.';
+    else if(err && err.status) why = 'Stripe channel error ' + err.status + (err.message ? ': ' + err.message : '') + '.';
+    else why = 'Can\u2019t reach /api/checkout from this environment \u2014 card checkout runs on the live marvelous3d.biz deploy, not in previews or local files.';
+    note.textContent = why + ' \u201cTransmit as request\u201d still works meanwhile.';
     sfx.err();
   }
 }

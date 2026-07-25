@@ -11,6 +11,10 @@
 //
 // Security note: prices are computed HERE from the catalog below, never trusted
 // from the client. Keep this catalog in sync with SHOP_ITEMS in index.html.
+//
+// Heads up: this file is CommonJS. If your repo has a package.json with
+// "type": "module", either remove that line or change the export at the
+// bottom to:  export default async function handler(req, res) { ... }
 
 const CATALOG = { dragon:16, axolotl:14, keytag:8, planter:12, dock:15, throne:18 };
 const SIZES   = { S:0.75, M:1, L:1.4 };
@@ -25,6 +29,15 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method === 'GET') {
+    // Health check: open https://marvelous3d.biz/api/checkout in a browser.
+    // { ok:true, stripe_key_configured:true } means everything is wired.
+    return res.status(200).json({
+      ok: true,
+      service: 'marvelous3d-checkout',
+      stripe_key_configured: !!process.env.STRIPE_SECRET_KEY
+    });
+  }
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
   const key = process.env.STRIPE_SECRET_KEY;
