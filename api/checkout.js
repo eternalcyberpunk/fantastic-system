@@ -59,10 +59,11 @@ module.exports = async (req, res) => {
 
     const p = new URLSearchParams();
     p.append('mode', 'payment');
-    p.append('success_url', origin + '/?checkout=success&order=' + encodeURIComponent(order_code));
-    p.append('cancel_url', origin + '/?checkout=cancelled');
     p.append('allow_promotion_codes', 'true'); // create a FULLSYNC promo code in Stripe to honor the 5%
     if (email) p.append('customer_email', String(email).slice(0, 120));
+
+    const lineSummaries = [];
+    let itemsTotal = 0;
 
     items.slice(0, 20).forEach((it, i) => {
       const base = CATALOG[it.id];
@@ -74,6 +75,8 @@ module.exports = async (req, res) => {
         ' (' + (it.size || 'M') + ' · ' + (it.finish || 'matte') + ')';
       const desc = 'color ' + String(it.color || '—').slice(0, 20) +
         (it.text ? ' · text: ' + String(it.text).slice(0, 20) : '');
+      itemsTotal += unit * qty;
+      lineSummaries.push(qty + '× ' + label + ' — ' + desc + ' — $' + (unit * qty / 100).toFixed(2));
       p.append(`line_items[${i}][quantity]`, String(qty));
       p.append(`line_items[${i}][price_data][currency]`, 'usd');
       p.append(`line_items[${i}][price_data][unit_amount]`, String(unit));
@@ -89,6 +92,25 @@ module.exports = async (req, res) => {
     if (delivery === 'ship') {
       p.append('shipping_address_collection[allowed_countries][0]', 'US');
     }
+
+    // Pack the print specs into the success URL. When the customer lands back
+    // on the site after paying, it emails these to dispatch marked PAID.
+    const totalCents = itemsTotal + sh.amount;
+    let dParam = '';
+    try {
+      const packed = Buffer.from(JSON.stringify({
+        c: String(order_code).slice(0, 40),
+        dl: sh.label + (location ? ' — ' + String(location).slice(0, 180) : ''),
+        n: String(name || '').slice(0, 60),
+        e: String(email || '').slice(0, 80),
+        i: lineSummaries,
+        t: totalCents
+      })).toString('base64url');
+      if (packed.length < 1800) dParam = '&d=' + packed;
+    } catch (e) { /* summary too big — dashboard still has everything */ }
+    p.append('success_url', origin + '/?checkout=success&order=' +
+      encodeURIComponent(order_code) + dParam);
+    p.append('cancel_url', origin + '/?checkout=cancelled');
 
     p.append('metadata[order_code]', String(order_code).slice(0, 40));
     p.append('metadata[delivery]', String(delivery).slice(0, 20));
