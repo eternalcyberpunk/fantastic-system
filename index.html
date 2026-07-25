@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Marvelous 3D Printing | marvelous3d.biz</title>
+<meta name="description" content="Marvelous 3D Printing is a full fabrication lab built into a mobile rig. Prototypes, parts, props and short runs — printed at your door, anywhere in greater Los Angeles. Book at marvelous3d.biz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Michroma&family=Space+Grotesk:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --void:#060812;
+  --abyss:#0c1026;
+  --ice:#eef1ff;
+  --ice-dim:rgba(238,241,255,.62);
+  --ice-faint:rgba(238,241,255,.38);
+  --prism-violet:#8b7bff;
+  --prism-cyan:#6fe8dc;
+  --prism-rose:#ff9ad5;
+  --glass:rgba(255,255,255,.045);
+  --glass-strong:rgba(255,255,255,.08);
+  --edge:rgba(255,255,255,.12);
+  --display:'Michroma',sans-serif;
+  --body:'Space Grotesk',sans-serif;
+  --mono:'Space Mono',monospace;
+  --bebop:'Anton',sans-serif;
+  --hud-h:56px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--void);
+  color:var(--ice);
+  font-family:var(--body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  position:fixed;inset:0;width:100%;
+}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--prism-cyan);outline-offset:3px;border-radius:4px}
+
+/* ============ ATMOSPHERE ============ */
+#dust{position:fixed;inset:0;z-index:0;pointer-events:none}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.16;pointer-events:none;z-index:0;
+  animation:blobshift 46s ease-in-out infinite alternate}
+.blob.b1{width:52vmax;height:52vmax;left:-14vmax;top:-18vmax;background:radial-gradient(circle,var(--prism-violet),transparent 65%)}
+.blob.b2{width:44vmax;height:44vmax;right:-12vmax;top:24vh;background:radial-gradient(circle,var(--prism-cyan),transparent 65%);animation-delay:-16s}
+.blob.b3{width:40vmax;height:40vmax;left:22vw;bottom:-20vmax;background:radial-gradient(circle,var(--prism-rose),transparent 65%);animation-delay:-32s}
+@keyframes blobshift{
+  0%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(4vmax,-3vmax) scale(1.08)}
+  100%{transform:translate(-3vmax,3vmax) scale(.96)}
+}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,transparent 45%,rgba(4,5,12,.55) 100%)}
+
+/* ============ HUD FRAME ============ */
+.tick{position:fixed;width:22px;height:22px;z-index:40;pointer-events:none;opacity:.5}
+.tick::before,.tick::after{content:"";position:absolute;background:linear-gradient(90deg,var(--prism-cyan),var(--prism-violet))}
+.tick::before{width:100%;height:1px}
+.tick::after{width:1px;height:100%}
+.tick.tl{left:10px;top:calc(var(--hud-h) + 16px)}
+.tick.tr{right:10px;top:calc(var(--hud-h) + 16px);transform:scaleX(-1)}
+.tick.bl{left:10px;bottom:calc(var(--hud-h) + 16px);transform:scaleY(-1)}
+.tick.br{right:10px;bottom:calc(var(--hud-h) + 16px);transform:scale(-1)}
+
+.hud-top,.hud-bottom{
+  position:fixed;left:10px;right:10px;height:var(--hud-h);z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;gap:14px;
+  background:
+    linear-gradient(180deg,rgba(111,232,220,.10),rgba(139,123,255,.045) 55%,rgba(111,232,220,.015)),
+    repeating-linear-gradient(0deg,rgba(111,232,220,.055) 0 1px,transparent 1px 3px);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  box-shadow:inset 0 1px 0 rgba(111,232,220,.32),inset 0 -1px 0 rgba(139,123,255,.28),
+    0 0 26px rgba(111,232,220,.10);
+  overflow:hidden;
+  animation:holoflicker 9s linear infinite;
+}
+.hud-top{top:8px;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+.hud-bottom{bottom:8px;clip-path:polygon(12px 0,100% 0,100% 100%,0 100%,0 12px);animation-delay:4.2s}
+.hud-top::after,.hud-bottom::after{content:"";position:absolute;top:0;bottom:0;width:36%;left:-45%;
+  background:linear-gradient(100deg,transparent,rgba(223,252,247,.06) 42%,rgba(223,252,247,.13) 50%,rgba(223,252,247,.06) 58%,transparent);
+  transform:skewX(-18deg);pointer-events:none;
+  animation:holosweep 7s ease-in-out infinite}
+.hud-bottom::after{animation-delay:3.5s}
+@keyframes holosweep{0%{left:-45%}42%{left:115%}100%{left:115%}}
+@keyframes holoflicker{0%,86%,91%,100%{opacity:1}87%{opacity:.74}88%{opacity:.97}89.5%{opacity:.85}}
+
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-orb{width:26px;height:26px;flex:none;border-radius:50%;position:relative;
+  background:
+    radial-gradient(circle at 32% 28%,rgba(255,255,255,.85),rgba(255,255,255,0) 34%),
+    conic-gradient(from 210deg,var(--prism-violet),var(--prism-cyan),var(--prism-rose),var(--prism-violet));
+  box-shadow:0 0 14px rgba(139,123,255,.55)}
+.brand-text{line-height:1.15;min-width:0}
+.brand-name{font-family:var(--bebop);font-size:17px;letter-spacing:.1em;white-space:nowrap;color:#eafdf9;
+  text-shadow:-1.4px 0 rgba(111,232,220,.6),1.4px 0 rgba(255,154,213,.55),0 0 16px rgba(111,232,220,.3)}
+.brand-sub{font-family:var(--mono);font-size:8.5px;letter-spacing:.32em;color:rgba(159,240,230,.5);white-space:nowrap}
+
+.readouts{display:flex;align-items:center;gap:22px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  color:rgba(190,246,238,.72);text-shadow:0 0 9px rgba(111,232,220,.3)}
+.readout{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--prism-cyan);
+  box-shadow:0 0 8px var(--prism-cyan);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.sfx-btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:rgba(190,246,238,.72);
+  padding:7px 12px;border:1px solid rgba(111,232,220,.32);border-radius:999px;transition:.2s;
+  text-shadow:0 0 9px rgba(111,232,220,.3)}
+.sfx-btn:hover{color:#eafdf9;border-color:rgba(111,232,220,.6);box-shadow:0 0 12px rgba(111,232,220,.25)}
+
+.progress{display:flex;align-items:center;gap:12px;font-family:var(--bebop);font-size:12.5px;
+  letter-spacing:.12em;white-space:nowrap;color:#eafdf9;
+  text-shadow:-1.2px 0 rgba(111,232,220,.55),1.2px 0 rgba(255,154,213,.5),0 0 12px rgba(111,232,220,.28)}
+.pips{display:flex;gap:5px}
+.pip{width:7px;height:7px;transform:rotate(45deg);border:1px solid rgba(111,232,220,.35);transition:.4s}
+.pip.on{background:linear-gradient(135deg,var(--prism-cyan),var(--prism-violet));border-color:transparent;
+  box-shadow:0 0 8px rgba(111,232,220,.6)}
+.hint{font-family:var(--bebop);font-size:12.5px;letter-spacing:.14em;color:rgba(210,250,244,.62);
+  text-shadow:0 0 10px rgba(111,232,220,.26);
+  text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hint b{color:rgba(234,253,249,.85);font-family:var(--mono);font-size:9.5px;font-weight:400;
+  border:1px solid rgba(111,232,220,.3);border-radius:4px;padding:1px 5px;margin:0 1px;text-shadow:none}
+
+/* ============ STAGE / CONSTELLATION ============ */
+#stage{position:fixed;left:0;right:0;top:var(--hud-h);bottom:var(--hud-h);z-index:10}
+#threads{position:absolute;inset:0;width:100%;height:100%}
+#threads line{stroke:rgba(238,241,255,.09);stroke-width:1;transition:stroke .4s}
+#threads line.lit{stroke:url(#threadGrad);stroke-width:1.4}
+
+.node{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;gap:9px;
+  will-change:transform,opacity}
+.node-orb{width:var(--orb,74px);height:var(--orb,74px);border-radius:50%;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 32% 26%,rgba(255,255,255,.22),rgba(255,255,255,0) 42%),
+    rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 0 0 rgba(139,123,255,0),inset 0 0 22px rgba(255,255,255,.04);
+  transition:box-shadow .35s,border-color .35s,transform .25s;
+  cursor:pointer}
+.node-orb::before{content:"";position:absolute;inset:-5px;border-radius:50%;padding:1px;
+  background:conic-gradient(from var(--spin,0deg),var(--prism-violet),var(--prism-cyan),var(--prism-rose),var(--prism-violet));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:.28;animation:ringspin 14s linear infinite}
+@keyframes ringspin{to{--spin:360deg}}
+@property --spin{syntax:'<angle>';initial-value:0deg;inherits:false}
+.node-orb svg{width:26px;height:26px;stroke:var(--ice);fill:none;stroke-width:1.4;opacity:.9}
+.node:hover .node-orb{transform:scale(1.07);border-color:rgba(255,255,255,.35);
+  box-shadow:0 0 26px rgba(139,123,255,.35),inset 0 0 22px rgba(255,255,255,.06)}
+.node.sel .node-orb{border-color:rgba(255,255,255,.5);
+  box-shadow:0 0 34px rgba(111,232,220,.45),inset 0 0 26px rgba(255,255,255,.08)}
+.node.sel .node-orb::before{opacity:.75}
+.node-tag{display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none}
+.node-name{font-family:var(--display);font-size:10.5px;letter-spacing:.26em;color:var(--ice)}
+.node-role{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;color:var(--ice-faint)}
+.node-scan{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;
+  background:linear-gradient(135deg,var(--prism-cyan),var(--prism-violet));
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 0 10px rgba(111,232,220,.7)}
+.node-scan svg{width:8px;height:8px;stroke:#04101a;stroke-width:3;fill:none}
+.node.scanned .node-scan{display:flex}
+
+/* targeting brackets */
+#brackets{position:absolute;left:0;top:0;width:100px;height:100px;pointer-events:none;
+  opacity:0;transition:opacity .25s;will-change:transform;z-index:999}
+#brackets.on{opacity:1}
+#brackets i{position:absolute;width:16px;height:16px;border:0 solid var(--prism-cyan);
+  filter:drop-shadow(0 0 5px rgba(111,232,220,.8))}
+#brackets i:nth-child(1){left:0;top:0;border-left-width:1.6px;border-top-width:1.6px}
+#brackets i:nth-child(2){right:0;top:0;border-right-width:1.6px;border-top-width:1.6px}
+#brackets i:nth-child(3){left:0;bottom:0;border-left-width:1.6px;border-bottom-width:1.6px}
+#brackets i:nth-child(4){right:0;bottom:0;border-right-width:1.6px;border-bottom-width:1.6px}
+
+
+/* ============ PANEL ============ */
+#panel{position:fixed;top:calc(var(--hud-h) + 14px);bottom:calc(var(--hud-h) + 14px);right:14px;
+  width:min(440px,calc(100vw - 28px));z-index:60;
+  background:rgba(12,15,34,.55);
+  backdrop-filter:blur(26px) saturate(1.3);-webkit-backdrop-filter:blur(26px) saturate(1.3);
+  border-radius:18px;
+  transform:translateX(calc(100% + 30px));
+  transition:transform .45s cubic-bezier(.22,.9,.26,1);
+  display:flex;flex-direction:column;overflow:hidden}
+#panel::before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;
+  background:linear-gradient(155deg,rgba(139,123,255,.55),rgba(255,255,255,.08) 30%,rgba(111,232,220,.4) 65%,rgba(255,154,213,.45));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+#panel.open{transform:translateX(0)}
+.panel-head{padding:20px 22px 15px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.panel-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.24em;color:var(--prism-cyan);margin-bottom:7px}
+.panel-title{font-family:var(--display);font-size:17px;letter-spacing:.14em;line-height:1.4}
+.panel-close{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--edge);
+  display:flex;align-items:center;justify-content:center;transition:.2s;color:var(--ice-dim)}
+.panel-close:hover{border-color:rgba(255,255,255,.35);color:var(--ice);transform:rotate(90deg)}
+.panel-body{padding:20px 22px 26px;overflow-y:auto;flex:1;scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.18) transparent}
+.panel-body::-webkit-scrollbar{width:5px}
+.panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:99px}
+.panel-body p{font-size:14.5px;line-height:1.65;color:var(--ice-dim);margin-bottom:14px}
+.panel-body p strong{color:var(--ice);font-weight:500}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.cta{font-family:var(--mono);font-size:11px;letter-spacing:.14em;padding:11px 17px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);transition:.25s;color:var(--ice)}
+.cta:hover{border-color:transparent;background:linear-gradient(120deg,rgba(139,123,255,.28),rgba(111,232,220,.24));
+  box-shadow:0 0 18px rgba(139,123,255,.3)}
+.cta.solid{background:linear-gradient(120deg,var(--prism-violet),var(--prism-cyan));color:#070a18;
+  border-color:transparent;font-weight:700}
+.cta.solid:hover{box-shadow:0 0 24px rgba(111,232,220,.5)}
+
+.svc{border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:14px 16px;margin-bottom:10px;
+  background:rgba(255,255,255,.03);transition:.25s}
+.svc:hover{border-color:rgba(139,123,255,.4);background:rgba(255,255,255,.05)}
+.svc h4{font-family:var(--display);font-size:11px;letter-spacing:.18em;margin-bottom:6px}
+.svc p{font-size:13px;margin:0;line-height:1.55}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ice-dim);
+  border:1px solid var(--edge);border-radius:999px;padding:7px 12px}
+.chip b{color:var(--prism-cyan);font-weight:400}
+.footnote{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ice-faint);
+  margin-top:14px;line-height:1.6}
+
+.spec{display:flex;justify-content:space-between;gap:16px;padding:11px 2px;
+  border-bottom:1px dashed rgba(255,255,255,.1);font-size:13px}
+.spec:last-of-type{border-bottom:none}
+.spec .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ice-faint);
+  padding-top:2px;flex:none}
+.spec .v{color:var(--ice-dim);text-align:right;line-height:1.5}
+.spec .v em{color:var(--ice);font-style:normal}
+
+.step{display:flex;gap:15px;margin-bottom:19px}
+.step-num{font-family:var(--mono);font-size:11px;color:var(--prism-cyan);flex:none;padding-top:2px;
+  text-shadow:0 0 10px rgba(111,232,220,.5)}
+.step-line{flex:none;width:1px;background:linear-gradient(180deg,rgba(111,232,220,.4),rgba(139,123,255,.15));margin:2px 0 -17px 0}
+.step:last-child .step-line{display:none}
+.step h4{font-family:var(--display);font-size:11.5px;letter-spacing:.18em;margin-bottom:5px}
+.step p{font-size:13.5px;margin:0;line-height:1.6}
+
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.arch{border:1px solid rgba(255,255,255,.09);border-radius:13px;overflow:hidden;background:rgba(255,255,255,.03);transition:.25s}
+.arch:hover{border-color:rgba(255,154,213,.4)}
+.arch-thumb{height:86px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,rgba(139,123,255,.14),rgba(6,8,18,.1) 45%,rgba(111,232,220,.12))}
+.arch-thumb svg{width:52px;height:52px;fill:none;stroke:url(#nope);stroke-width:1.3}
+.arch-info{padding:10px 12px 12px}
+.arch-info h5{font-size:12.5px;font-weight:500;letter-spacing:.03em;margin-bottom:3px}
+.arch-info span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--ice-faint)}
+
+.radar-wrap{display:flex;justify-content:center;margin:6px 0 18px}
+.radar{width:210px;height:210px}
+.zone{display:flex;gap:13px;align-items:flex-start;padding:11px 2px;border-bottom:1px dashed rgba(255,255,255,.1)}
+.zone:last-of-type{border-bottom:none}
+.zone-dot{width:10px;height:10px;border-radius:50%;flex:none;margin-top:4px}
+.zone h4{font-size:13.5px;font-weight:500;margin-bottom:3px}
+.zone h4 span{font-family:var(--mono);font-size:10px;color:var(--ice-faint);letter-spacing:.06em;margin-left:7px}
+.zone p{font-size:12.5px;margin:0;line-height:1.5}
+
+.field{margin-bottom:13px}
+.field label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
+  color:var(--ice-faint);margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.13);
+  border-radius:10px;padding:11px 13px;color:var(--ice);font-family:var(--body);font-size:14px;
+  transition:border-color .2s}
+.field select{appearance:none;background-image:linear-gradient(45deg,transparent 49%,var(--ice-dim) 50%),linear-gradient(135deg,var(--ice-dim) 50%,transparent 51%);
+  background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+.field select option{background:#0c1026;color:var(--ice)}
+.field textarea{min-height:88px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--prism-cyan);outline:none}
+.field input::placeholder,.field textarea::placeholder{color:rgba(238,241,255,.28)}
+.uplink-direct{margin-top:18px;padding-top:15px;border-top:1px dashed rgba(255,255,255,.1)}
+
+/* forge / print simulator */
+.forge-drop{border:1.5px dashed rgba(111,232,220,.4);border-radius:15px;padding:36px 18px;
+  text-align:center;cursor:pointer;transition:.25s;background:rgba(255,255,255,.03)}
+.forge-drop:hover,.forge-drop.over{border-color:var(--prism-cyan);background:rgba(111,232,220,.07);
+  box-shadow:0 0 22px rgba(111,232,220,.15)}
+.forge-drop h4{font-family:var(--display);font-size:12px;letter-spacing:.2em;margin-bottom:9px}
+.forge-drop p{font-size:12.5px;margin:0 0 4px}
+.forge-view{position:relative;border-radius:14px;overflow:hidden;margin-bottom:14px;
+  background:radial-gradient(ellipse at 50% 30%,rgba(139,123,255,.08),rgba(255,255,255,.02) 70%);
+  border:1px solid rgba(255,255,255,.12)}
+.forge-view canvas{display:block;width:100% !important;height:auto !important;touch-action:none;cursor:grab}
+.forge-view canvas:active{cursor:grabbing}
+.forge-file{position:absolute;left:11px;top:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+  color:var(--prism-cyan);text-shadow:0 0 8px rgba(111,232,220,.5);pointer-events:none;
+  max-width:72%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.forge-hint{position:absolute;right:11px;bottom:8px;font-family:var(--mono);font-size:9px;
+  color:var(--ice-faint);pointer-events:none;letter-spacing:.08em}
+.swatches{display:flex;gap:9px;flex-wrap:wrap;margin:2px 0 14px}
+.sw{width:27px;height:27px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;
+  transition:.2s;padding:0;flex:none}
+.sw.on{border-color:#fff;box-shadow:0 0 11px rgba(255,255,255,.45);transform:scale(1.14)}
+.forge-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.forge-row label{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--ice-faint);
+  flex:none;width:62px}
+.forge-row input[type=range]{flex:1;accent-color:var(--prism-cyan);background:transparent;min-width:0}
+.forge-row .val{font-family:var(--mono);font-size:11px;color:var(--prism-cyan);flex:none;width:58px;text-align:right}
+.forge-row select{flex:1;min-width:0;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.13);
+  border-radius:9px;padding:8px 11px;color:var(--ice);font-family:var(--body);font-size:13px;
+  appearance:none;background-image:linear-gradient(45deg,transparent 49%,var(--ice-dim) 50%),linear-gradient(135deg,var(--ice-dim) 50%,transparent 51%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+.forge-row select option{background:#0c1026;color:var(--ice)}
+.forge-est{margin:14px 0 4px;padding:13px 15px;border:1px solid rgba(111,232,220,.28);border-radius:13px;
+  background:rgba(111,232,220,.05)}
+.forge-est .big{font-family:var(--display);font-size:15px;letter-spacing:.12em;color:var(--prism-cyan);
+  text-shadow:0 0 12px rgba(111,232,220,.4)}
+.forge-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ice-faint);
+  line-height:1.6;margin-top:10px}
+
+/* ============ TOAST ============ */
+#toast{position:fixed;left:50%;bottom:calc(var(--hud-h) + 22px);transform:translate(-50%,24px);
+  z-index:80;opacity:0;pointer-events:none;transition:.5s cubic-bezier(.2,.9,.3,1);
+  background:rgba(12,15,34,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:15px;padding:15px 22px;text-align:center;max-width:min(420px,calc(100vw - 32px))}
+#toast::before{content:"";position:absolute;inset:0;border-radius:15px;padding:1px;
+  background:linear-gradient(120deg,var(--prism-violet),var(--prism-cyan),var(--prism-rose));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast h5{font-family:var(--display);font-size:11px;letter-spacing:.24em;margin-bottom:6px;
+  background:linear-gradient(90deg,var(--prism-cyan),var(--prism-rose));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+#toast p{font-size:12.5px;color:var(--ice-dim);line-height:1.55}
+#toast p b{color:var(--ice);font-family:var(--mono);font-weight:700;letter-spacing:.08em}
+
+/* ============ BOOT ============ */
+#boot{position:fixed;inset:0;z-index:100;background:var(--void);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  transition:opacity .6s;cursor:pointer}
+#boot.done{opacity:0;pointer-events:none}
+.boot-orb{width:58px;height:58px;border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 28%,rgba(255,255,255,.9),rgba(255,255,255,0) 36%),
+    conic-gradient(from 210deg,var(--prism-violet),var(--prism-cyan),var(--prism-rose),var(--prism-violet));
+  box-shadow:0 0 44px rgba(139,123,255,.6);animation:bootfloat 3s ease-in-out infinite}
+@keyframes bootfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.boot-name{font-family:var(--bebop);font-size:clamp(22px,6.2vw,33px);letter-spacing:.13em;text-align:center;
+  padding:0 20px;color:#eafdf9;
+  text-shadow:-1.7px 0 rgba(111,232,220,.6),1.7px 0 rgba(255,154,213,.55),0 0 22px rgba(111,232,220,.35)}
+.boot-sub{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--ice-faint);margin-top:-16px}
+.boot-bar{width:min(250px,64vw);height:2px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.boot-fill{height:100%;width:0%;border-radius:99px;
+  background:linear-gradient(90deg,var(--prism-violet),var(--prism-cyan));
+  box-shadow:0 0 10px rgba(111,232,220,.8);transition:width .18s}
+.boot-log{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--ice-faint);height:14px}
+.boot-skip{font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:rgba(238,241,255,.25);
+  position:absolute;bottom:30px}
+
+/* ============ RESPONSIVE / MOTION ============ */
+@media (max-width:760px){
+  :root{--hud-h:50px;--orb:56px}
+  .m-hide{display:none !important}
+  .readouts .readout.hide-m{display:none}
+  .hint span.kb{display:none}
+  .hud-top,.hud-bottom{left:7px;right:7px;padding:0 13px;gap:10px}
+  .hud-top{top:6px}
+  .hud-bottom{bottom:6px}
+  .brand-name{font-size:14px;letter-spacing:.08em}
+  .progress{font-size:11.5px;gap:8px;letter-spacing:.1em}
+  .hint{font-size:11px;letter-spacing:.1em}
+  .node-orb svg{width:21px;height:21px}
+  .node-name{font-size:9px;letter-spacing:.2em}
+  .node-role{display:none}
+  #panel{top:auto;bottom:0;right:0;left:0;width:100%;height:78%;border-radius:20px 20px 0 0;
+    transform:translateY(105%)}
+  #panel::before{border-radius:20px 20px 0 0}
+  #panel.open{transform:translateY(0)}
+  .arch-grid{grid-template-columns:1fr 1fr}
+  .tick{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="dust"></canvas>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="vignette"></div>
+<i class="tick tl"></i><i class="tick tr"></i><i class="tick bl"></i><i class="tick br"></i>
+
+<!-- ============ BOOT ============ -->
+<div id="boot" role="status" aria-label="Loading Marvelous 3D Printing">
+  <div class="boot-orb"></div>
+  <div class="boot-name">MARVELOUS 3D PRINTING</div>
+  <div class="boot-sub">MOBILE FABRICATION OS</div>
+  <div class="boot-bar"><div class="boot-fill" id="bootFill"></div></div>
+  <div class="boot-log" id="bootLog">powering print bays…</div>
+  <div class="boot-skip">TAP TO SKIP</div>
+</div>
+
+<!-- ============ HUD TOP ============ -->
+<header class="hud-top">
+  <div class="brand">
+    <div class="brand-orb"></div>
+    <div class="brand-text">
+      <div class="brand-name">MARVELOUS 3D</div>
+      <div class="brand-sub">MARVELOUS3D.BIZ</div>
+    </div>
+  </div>
+  <div class="readouts">
+    <span class="readout hide-m">34.05°N&thinsp;118.24°W</span>
+    <span class="readout hide-m" id="clock">00:00:00</span>
+    <span class="readout"><i class="pulse"></i>UNIT ONLINE</span>
+    <button class="sfx-btn" id="sfxBtn" aria-pressed="true">SFX ON</button>
+  </div>
+</header>
+
+<!-- ============ STAGE ============ -->
+<main id="stage" aria-label="Site map — a constellation of sections. Use arrow keys to move between nodes, Enter to open.">
+  <svg id="threads" aria-hidden="true">
+    <defs>
+      <linearGradient id="threadGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100%" y2="100%">
+        <stop offset="0" stop-color="#8b7bff" stop-opacity=".8"/>
+        <stop offset=".5" stop-color="#6fe8dc" stop-opacity=".8"/>
+        <stop offset="1" stop-color="#ff9ad5" stop-opacity=".8"/>
+      </linearGradient>
+      <linearGradient id="nope" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#8b7bff"/>
+        <stop offset=".55" stop-color="#6fe8dc"/>
+        <stop offset="1" stop-color="#ff9ad5"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <div id="brackets"><i></i><i></i><i></i><i></i></div>
+</main>
+
+<!-- ============ HUD BOTTOM ============ -->
+<footer class="hud-bottom">
+  <div class="progress">
+    <span id="progLabel">SECTORS<span class="m-hide"> SCANNED</span> 0/8</span>
+    <span class="pips" id="pips"></span>
+  </div>
+  <div class="hint" id="hint">SELECT A NODE TO ACCESS ITS DATA<span class="kb"> · <b>←→</b> JUMP · <b>↵</b> OPEN</span></div>
+</footer>
+
+<!-- ============ PANEL ============ -->
+<aside id="panel" role="dialog" aria-modal="false" aria-labelledby="panelTitle">
+  <div class="panel-head">
+    <div>
+      <div class="panel-eyebrow" id="panelEyebrow">NODE://</div>
+      <div class="panel-title" id="panelTitle"></div>
+    </div>
+    <button class="panel-close" id="panelClose" aria-label="Close panel">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 1l10 10M11 1L1 11"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</aside>
+
+<div id="toast" role="status">
+  <h5>FULL SYNC ACHIEVED</h5>
+  <p>All eight sectors scanned. Mention code <b>FULLSYNC</b> when you book — 5% off your first deployment.</p>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const ICONS = {
+  core:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.4 5.4l2.6 2.6M16 16l2.6 2.6M18.6 5.4L16 8M8 16l-2.6 2.6"/></svg>',
+  services:'<svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>',
+  rig:'<svg viewBox="0 0 24 24"><path d="M2 15V8h11v7M13 10h5l4 3.4V15h-9"/><circle cx="6.6" cy="17" r="2"/><circle cx="17.4" cy="17" r="2"/><path d="M8.6 17h6.8M2 17h2.6M19.4 17H22M5 5.4h7"/></svg>',
+  protocol:'<svg viewBox="0 0 24 24"><path d="M4 5h6M4 12h10M4 19h14"/><circle cx="17" cy="5" r="2"/><circle cx="19" cy="12" r="2" opacity=".55"/><circle cx="21" cy="19" r="1" opacity=".35"/></svg>',
+  archive:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><path d="M17 13.7v6.6M13.7 17h6.6"/></svg>',
+  range:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" opacity=".55"/><circle cx="12" cy="12" r="1.3"/><path d="M12 12l5.8-5.8"/></svg>',
+  forge:'<svg viewBox="0 0 24 24"><path d="M12 4.4l5.8 3.3v6.6L12 17.6l-5.8-3.3V7.7L12 4.4z"/><path d="M12 11l5.8-3.3M12 11v6.6M12 11L6.2 7.7"/><path d="M20.6 15.8a9.4 9.4 0 01-4.1 4.3M3.4 8.2a9.4 9.4 0 014.1-4.3" opacity=".6"/></svg>',
+  uplink:'<svg viewBox="0 0 24 24"><path d="M12 20V9"/><path d="M7.5 12.5L12 8l4.5 4.5"/><path d="M5 7a9.5 9.5 0 0114 0" opacity=".55"/><path d="M7.6 9.6a5.8 5.8 0 018.8 0" opacity=".8"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>'
+};
+
+const GALLERY = [
+  {t:'Quad drone frame', m:'PA-CF · 6h 40m', svg:'<svg viewBox="0 0 52 52"><path d="M26 20l-14-12M26 20l14-12M26 32l-14 12M26 32l14 12"/><rect x="20" y="20" width="12" height="12" rx="2.5"/><circle cx="10" cy="7" r="4.5"/><circle cx="42" cy="7" r="4.5"/><circle cx="10" cy="45" r="4.5"/><circle cx="42" cy="45" r="4.5"/></svg>'},
+  {t:'Cosplay helmet shell', m:'PLA+ · 31h, 4 parts', svg:'<svg viewBox="0 0 52 52"><path d="M10 30a16 16 0 0132 0v10a3 3 0 01-3 3H13a3 3 0 01-3-3z"/><path d="M15 30h22v6H15z"/><path d="M26 8v6"/></svg>'},
+  {t:'Replacement drive gear', m:'PETG · 55m', svg:'<svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="13"/><circle cx="26" cy="26" r="4.5"/><path d="M26 6v5M26 41v5M6 26h5M41 26h5M11.9 11.9l3.5 3.5M36.6 36.6l3.5 3.5M40.1 11.9l-3.5 3.5M15.4 36.6l-3.5 3.5"/></svg>'},
+  {t:'Massing model, 1:200', m:'Grey resin · 9h', svg:'<svg viewBox="0 0 52 52"><path d="M8 44V26h9v18M17 44V16h11v28M28 44V8h9v36M37 44V20h8v24M4 44h44"/></svg>'},
+  {t:'Event badge run ×300', m:'PLA silk · 2 days', svg:'<svg viewBox="0 0 52 52"><path d="M26 5l16 9v18l-16 9-16-9V14z"/><path d="M26 14l8 4.5v9L26 32l-8-4.5v-9z"/></svg>'},
+  {t:'Sensor housing, IP54', m:'ASA · 3h 10m', svg:'<svg viewBox="0 0 52 52"><rect x="10" y="14" width="32" height="24" rx="4"/><rect x="16" y="20" width="12" height="12" rx="2"/><circle cx="35" cy="26" r="3.5"/><path d="M10 10v-3M42 10v-3M10 45v-3M42 45v-3"/></svg>'}
+];
+
+const NODES = [
+  {id:'core', name:'CORE', role:'OVERVIEW', icon:'core',
+   d:[49,44], m:[50,10],
+   title:'The print lab that rolls to you',
+   html:`<p><strong>Marvelous 3D Printing is a full fabrication lab built into a mobile rig.</strong> Prototypes, replacement parts, props, short production runs — printed at your door, your event, or your job site, anywhere in greater Los Angeles.</p>
+   <p>No shipping delays. No waiting on a shop across town. You send the idea; we bring the machines and print while you watch.</p>
+   <div class="cta-row">
+     <button class="cta solid" data-goto="uplink">Book a deployment</button>
+     <button class="cta" data-goto="forge">Try the print simulator</button>
+     <button class="cta" data-goto="services">See mission types</button>
+   </div>`},
+
+  {id:'services', name:'SERVICES', role:'MISSION TYPES', icon:'services',
+   d:[23,26], m:[25,24],
+   title:'Mission types',
+   html:`<div class="svc"><h4>ON-SITE PROTOTYPING</h4><p>Iterate in real time. Print, test, tweak the model, and reprint in the same session — hours instead of weeks.</p></div>
+   <div class="svc"><h4>REPLACEMENT PARTS</h4><p>Bring us the broken piece. We measure or scan it, model a fix, and print it tougher than the original.</p></div>
+   <div class="svc"><h4>EVENT PRINTING</h4><p>Live fabrication at markets, launches, and conventions. Custom giveaways printed on the spot draw a crowd.</p></div>
+   <div class="svc"><h4>PROPS &amp; COSPLAY</h4><p>Helmets, armor, hero props, and set pieces — large-format prints with finishing that reads on camera.</p></div>
+   <div class="svc"><h4>SMALL-BATCH RUNS</h4><p>Six printers running in parallel turn out short production runs — 50 to 500 units — without tooling costs.</p></div>
+   <div class="svc"><h4>3D SCANNING</h4><p>Capture objects, parts, or people as clean, watertight meshes ready for printing or CAD.</p></div>
+   <div class="chips">
+     <span class="chip">Call-out <b>from $45</b> · waived in Zone A</span>
+     <span class="chip">Machine time <b>from $8/hr</b></span>
+     <span class="chip">Material <b>from $0.12/g</b></span>
+     <span class="chip">Rush <b>+30%</b></span>
+   </div>
+   <p class="footnote">Every mission starts with a fixed quote — no meter running.</p>
+   <div class="cta-row"><button class="cta solid" data-goto="uplink">Request a quote</button><button class="cta" data-goto="range">Check your zone</button></div>`},
+
+  {id:'rig', name:'THE RIG', role:'MOBILE UNIT', icon:'rig',
+   d:[75,24], m:[75,24],
+   title:'One vehicle. A whole print farm.',
+   html:`<p>The rig is a climate-controlled fabrication bay on wheels — every machine racked, powered, and calibrated before we reach you.</p>
+   <div class="spec"><span class="k">FDM BAYS</span><span class="v"><em>6× enclosed printers</em> · 0.25–0.8&thinsp;mm nozzles · up to 300&thinsp;°C</span></div>
+   <div class="spec"><span class="k">RESIN</span><span class="v"><em>2× MSLA stations</em> + wash &amp; cure, 50&thinsp;µm detail</span></div>
+   <div class="spec"><span class="k">BUILD VOLUME</span><span class="v">up to <em>350 × 350 × 400&thinsp;mm</em> FDM · 218 × 123 × 235&thinsp;mm resin</span></div>
+   <div class="spec"><span class="k">MATERIALS</span><span class="v">PLA · PETG · ABS/ASA · TPU · PC · PA-CF · standard, tough &amp; flexible resins</span></div>
+   <div class="spec"><span class="k">POWER</span><span class="v"><em>5&thinsp;kWh onboard battery</em> + shore hookup — prints never pause</span></div>
+   <div class="spec"><span class="k">TRANSIT</span><span class="v">Vibration-damped racks keep long jobs running between stops</span></div>
+   <div class="spec"><span class="k">AIR</span><span class="v">HEPA + activated-carbon filtration; sealed resin handling</span></div>
+   <div class="cta-row"><button class="cta" data-goto="archive">See what it prints</button></div>`},
+
+  {id:'protocol', name:'PROTOCOL', role:'HOW IT WORKS', icon:'protocol',
+   d:[17,63], m:[25,42],
+   title:'Four steps, one visit',
+   html:`<div class="step"><div><div class="step-num">01</div><div class="step-line"></div></div><div><h4>TRANSMIT</h4><p>Send a model, a sketch, or a photo of the broken part. We confirm scope and lock a fixed quote — usually within hours.</p></div></div>
+   <div class="step"><div><div class="step-num">02</div><div class="step-line"></div></div><div><h4>DEPLOY</h4><p>Pick a window. The rig rolls to your address and is printing within fifteen minutes of parking.</p></div></div>
+   <div class="step"><div><div class="step-num">03</div><div class="step-line"></div></div><div><h4>FABRICATE</h4><p>Watch your parts print live. Change your mind mid-job? We edit the model and reslice on the spot.</p></div></div>
+   <div class="step"><div><div class="step-num">04</div><div class="step-line"></div></div><div><h4>HANDOFF</h4><p>Supports off, surfaces cleaned, threads tapped where needed. Parts in your hands before we pull away.</p></div></div>
+   <div class="cta-row"><button class="cta solid" data-goto="uplink">Start at step 01</button></div>`},
+
+  {id:'forge', name:'FORGE', role:'PRINT SIMULATOR', icon:'forge',
+   d:[34,57], m:[75,42],
+   title:'Drop a model. Watch it become real.',
+   html:`<div id="forgeRoot"><p>Loading the forge…</p></div>`},
+
+  {id:'archive', name:'ARCHIVE', role:'PAST PRINTS', icon:'archive',
+   d:[66,72], m:[25,60],
+   title:'Pulled from the archive',
+   html:`<p>A few recent missions — from one-hour rescue parts to multi-day builds.</p>
+   <div class="arch-grid">${GALLERY.map(g=>`<div class="arch"><div class="arch-thumb">${g.svg}</div><div class="arch-info"><h5>${g.t}</h5><span>${g.m}</span></div></div>`).join('')}</div>
+   <div class="cta-row"><button class="cta solid" data-goto="uplink">Add yours to the archive</button></div>`},
+
+  {id:'range', name:'RANGE', role:'SERVICE AREA', icon:'range',
+   d:[85,50], m:[75,60],
+   title:'Deployment range',
+   html:`<div class="radar-wrap"><svg class="radar" viewBox="0 0 200 200" aria-hidden="true">
+     <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(255,154,213,.28)" stroke-dasharray="3 5"/>
+     <circle cx="100" cy="100" r="62" fill="none" stroke="rgba(139,123,255,.4)"/>
+     <circle cx="100" cy="100" r="32" fill="rgba(111,232,220,.05)" stroke="rgba(111,232,220,.55)"/>
+     <circle cx="100" cy="100" r="3.5" fill="#6fe8dc"/>
+     <g style="transform-origin:100px 100px;animation:sweep 5s linear infinite">
+       <line x1="100" y1="100" x2="100" y2="8" stroke="url(#threadGrad)" stroke-width="1.4"/>
+     </g>
+     <style>@keyframes sweep{to{transform:rotate(360deg)}}</style>
+     <text x="100" y="82" text-anchor="middle" fill="rgba(238,241,255,.55)" font-family="Space Mono" font-size="8" letter-spacing="2">ZONE A</text>
+     <text x="100" y="48" text-anchor="middle" fill="rgba(238,241,255,.4)" font-family="Space Mono" font-size="8" letter-spacing="2">ZONE B</text>
+     <text x="100" y="19" text-anchor="middle" fill="rgba(238,241,255,.3)" font-family="Space Mono" font-size="8" letter-spacing="2">ZONE C</text>
+   </svg></div>
+   <div class="zone"><span class="zone-dot" style="background:#6fe8dc;box-shadow:0 0 8px #6fe8dc"></span><div><h4>Zone A <span>0–25 mi · LA core</span></h4><p>Downtown, Hollywood, Westside, the Valley, Long Beach. No travel fee, same-week windows.</p></div></div>
+   <div class="zone"><span class="zone-dot" style="background:#8b7bff;box-shadow:0 0 8px #8b7bff"></span><div><h4>Zone B <span>25–60 mi</span></h4><p>OC, Inland Empire, Ventura. Flat deployment fee added to your quote.</p></div></div>
+   <div class="zone"><span class="zone-dot" style="background:#ff9ad5;box-shadow:0 0 8px #ff9ad5"></span><div><h4>Zone C <span>60 mi +</span></h4><p>Special deployments — festivals, film sets, multi-day installs. Priced per mission.</p></div></div>
+   <div class="cta-row"><button class="cta solid" data-goto="uplink">Request your window</button></div>`},
+
+  {id:'uplink', name:'UPLINK', role:'BOOK / CONTACT', icon:'uplink',
+   d:[40,80], m:[50,80],
+   title:'Open a channel',
+   html:`<p>Tell us what you need printed and where. We reply with a fixed quote and the next available window — within one business day.</p>
+   <div class="field"><label for="f-name">CALLSIGN / NAME</label><input id="f-name" type="text" placeholder="Ada Reyes" autocomplete="name"></div>
+   <div class="field"><label for="f-contact">REPLY CHANNEL</label><input id="f-contact" type="text" placeholder="email or phone" autocomplete="email"></div>
+   <div class="field"><label for="f-type">MISSION TYPE</label><select id="f-type">
+     <option>On-site prototyping</option><option>Replacement part</option><option>Event printing</option>
+     <option>Props / cosplay</option><option>Small-batch run</option><option>3D scanning</option><option>Not sure yet</option>
+   </select></div>
+   <div class="field"><label for="f-brief">MISSION BRIEF</label><textarea id="f-brief" placeholder="What are we printing, roughly how many, and where do we deploy?"></textarea></div>
+   <div class="cta-row"><button class="cta solid" id="transmit">Transmit request</button></div>
+   <p class="footnote" id="txNote"></p>
+   <div class="uplink-direct">
+     <div class="spec"><span class="k">DIRECT</span><span class="v"><em>dispatch@marvelous3d.biz</em></span></div>
+     <div class="spec"><span class="k">VOICE</span><span class="v">(909) 455-4457 · Mon–Sat 08:00–20:00</span></div>
+     <div class="spec"><span class="k">WEB</span><span class="v"><em>marvelous3d.biz</em></span></div>
+     <div class="spec"><span class="k">SIGNAL</span><span class="v">@marvelous3dprinting</span></div>
+   </div>`}
+];
+
+const EDGES = [
+  ['core','services'],['core','rig'],['core','protocol'],['core','archive'],['core','uplink'],
+  ['rig','range'],['services','protocol'],['protocol','uplink'],['range','uplink'],['services','archive'],
+  ['core','forge'],['forge','uplink'],['forge','rig']
+];
+
+/* ================= AUDIO ================= */
+let audioOn = true, actx = null;
+function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
+function tone(freq, dur, type, gain, when){
+  if(!audioOn) return; const c = ac(); if(!c) return;
+  const t = c.currentTime + (when||0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type||'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(gain||0.05, t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.05);
+}
+function sweep(f0, f1, dur, type, gain){
+  if(!audioOn) return; const c = ac(); if(!c) return;
+  const t = c.currentTime;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type||'sine';
+  o.frequency.setValueAtTime(f0, t);
+  o.frequency.exponentialRampToValueAtTime(f1, t+dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(gain||0.05, t+0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.05);
+}
+const sfx = {
+  hover: ()=> tone(1180, .06, 'sine', .015),
+  open:  ()=>{ tone(520,.09,'sine',.05); tone(880,.14,'sine',.045,.06); },
+  close: ()=> tone(390,.11,'sine',.04),
+  scan:  ()=> tone(1560,.08,'triangle',.03),
+  key:   ()=> tone(760 + Math.random()*420, .035, 'triangle', .012),
+  err:   ()=>{ tone(150,.12,'sawtooth',.035); tone(118,.14,'sawtooth',.03,.13); },
+  send:  ()=>{ sweep(280,1500,.5,'sine',.05); tone(1720,.12,'sine',.04,.5); },
+  bootTick:(p)=> tone(240 + p*7, .04, 'square', .008),
+  bootUp:()=>{ [130,195,260,390].forEach((f,i)=> tone(f,.5,'sine',.035,i*.06)); sweep(200,900,.6,'triangle',.02); },
+  win:   ()=>{ [660,830,990,1320].forEach((f,i)=> tone(f,.16,'sine',.05,i*.09)); }
+};
+
+/* ambient hologram hum — two detuned lows + a faint shimmer, breathing via LFO */
+let amb = null;
+function ambientStart(){
+  if(amb || !audioOn) return; const c = ac(); if(!c || c.state !== 'running') return;
+  const g = c.createGain(); g.gain.value = .012;
+  const o1 = c.createOscillator(); o1.type='sine'; o1.frequency.value = 54;
+  const o2 = c.createOscillator(); o2.type='sine'; o2.frequency.value = 54.35;
+  const o3 = c.createOscillator(); o3.type='sine'; o3.frequency.value = 1080;
+  const g3 = c.createGain(); g3.gain.value = .07;
+  const lfo = c.createOscillator(); lfo.frequency.value = .11;
+  const lg = c.createGain(); lg.gain.value = .005;
+  lfo.connect(lg); lg.connect(g.gain);
+  o1.connect(g); o2.connect(g); o3.connect(g3); g3.connect(g);
+  g.connect(c.destination);
+  [o1,o2,o3,lfo].forEach(o=> o.start());
+  amb = {g, osc:[o1,o2,o3,lfo]};
+}
+function ambientStop(){
+  if(!amb) return;
+  try{
+    amb.g.gain.setTargetAtTime(0.0001, ac().currentTime, .2);
+    const a = amb; setTimeout(()=> a.osc.forEach(o=>{ try{o.stop()}catch(e){} }), 700);
+  }catch(e){}
+  amb = null;
+}
+
+/* ================= BOOT ================= */
+const boot = document.getElementById('boot');
+const bootFill = document.getElementById('bootFill');
+const bootLog = document.getElementById('bootLog');
+const bootMsgs = ['powering print bays…','loading filament profiles…','calibrating resin optics…','charging onboard cells…','route matrix ready.'];
+let bootP = 0, bootDone = false;
+const bootIv = setInterval(()=>{
+  bootP = Math.min(100, bootP + 9 + Math.random()*14);
+  bootFill.style.width = bootP + '%';
+  bootLog.textContent = bootMsgs[Math.min(bootMsgs.length-1, Math.floor(bootP/22))];
+  sfx.bootTick(bootP);
+  if(bootP >= 100) endBoot();
+}, 150);
+function endBoot(){
+  if(bootDone) return; bootDone = true;
+  clearInterval(bootIv);
+  sfx.bootUp();
+  boot.classList.add('done');
+  setTimeout(()=> boot.remove(), 700);
+}
+boot.addEventListener('click', endBoot);
+window.addEventListener('keydown', e=>{ if(!bootDone){ endBoot(); e.__bootSkip = true; } });
+
+/* ================= BUILD CONSTELLATION ================= */
+const stage = document.getElementById('stage');
+const threads = document.getElementById('threads');
+const brackets = document.getElementById('brackets');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const nodeEls = {};
+NODES.forEach((n,i)=>{
+  const el = document.createElement('button');
+  el.className = 'node'; el.id = 'node-' + n.id;
+  el.setAttribute('aria-label', n.name + ' — ' + n.role);
+  el.innerHTML = `
+    <span class="node-orb">${ICONS[n.icon]}<span class="node-scan">${ICONS.check}</span></span>
+    <span class="node-tag"><span class="node-name">${n.name}</span><span class="node-role">${n.role}</span></span>`;
+  el.addEventListener('click', ()=> select(n.id));
+  el.addEventListener('mouseenter', ()=> sfx.hover());
+  stage.appendChild(el);
+  nodeEls[n.id] = el;
+  n.phase = i * 1.7;
+  n.speedX = .28 + (i%3)*.07;
+  n.speedY = .22 + (i%4)*.06;
+  n.amp = 9 + (i%3)*4;
+  n.zamp = 70 + (i%3)*20;
+  n.speedZ = .17 + (i%4)*.05;
+  n.zphase = i * 2.1;
+});
+
+const lineEls = EDGES.map(([a,b])=>{
+  const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+  l.dataset.a = a; l.dataset.b = b;
+  threads.appendChild(l);
+  return l;
+});
+
+/* ================= DRIFT LOOP ================= */
+let W = 0, H = 0, mobile = false;
+function resize(){
+  W = stage.clientWidth; H = stage.clientHeight;
+  mobile = window.innerWidth < 760;
+  threads.setAttribute('width', W); threads.setAttribute('height', H);
+  threads.setAttribute('viewBox', `0 0 ${W} ${H}`);
+}
+window.addEventListener('resize', resize); resize();
+
+const pos = {}; /* projected orb centers: [x, y, scaledOrbSize] */
+const F = 1100; /* focal length */
+let camYaw = 0, camPitch = 0, pTX = 0, pTY = 0;
+const tiltCapable = matchMedia('(hover: hover) and (pointer: fine)').matches && !reduceMotion;
+if(tiltCapable){
+  window.addEventListener('pointermove', e=>{
+    pTX = (e.clientX / innerWidth - .5) * 2;
+    pTY = (e.clientY / innerHeight - .5) * 2;
+  });
+}
+function tick(t){
+  const s = t/1000;
+  const cx = W/2, cy = H/2;
+  const sway = reduceMotion ? 0 : (mobile ? .6 : 1);
+  const yawTarget = sway*Math.sin(s*.13)*.07 + (tiltCapable ? pTX*.10 : 0);
+  const pitTarget = sway*Math.cos(s*.10)*.05 + (tiltCapable ? -pTY*.08 : 0);
+  camYaw += (yawTarget - camYaw)*.045;
+  camPitch += (pitTarget - camPitch)*.045;
+  const cyw = Math.cos(camYaw), syw = Math.sin(camYaw);
+  const cpt = Math.cos(camPitch), spt = Math.sin(camPitch);
+
+  NODES.forEach(n=>{
+    const el = nodeEls[n.id];
+    const base = mobile ? n.m : n.d;
+    const bobA = reduceMotion ? 0 : n.amp * (mobile ? .55 : 1);
+    const zA = reduceMotion ? 0 : n.zamp * (mobile ? .7 : 1);
+    /* world position relative to stage center */
+    const wx = base[0]/100*W - cx + Math.sin(s*n.speedX + n.phase)*bobA;
+    const wy = base[1]/100*H - cy + Math.cos(s*n.speedY + n.phase*1.3)*bobA;
+    const wz = Math.sin(s*n.speedZ + n.zphase)*zA;
+    /* camera yaw (around Y) then pitch (around X) */
+    const rx = wx*cyw + wz*syw;
+    const z1 = -wx*syw + wz*cyw;
+    const ry = wy*cpt - z1*spt;
+    const z2 = wy*spt + z1*cpt;
+    /* perspective projection */
+    const per = F/(F + z2);
+    const sx = cx + rx*per;
+    const sy = cy + ry*per;
+    el.style.transform = `translate(${sx - el.offsetWidth/2}px, ${sy - el.offsetHeight/2}px) scale(${per.toFixed(4)})`;
+    el.style.opacity = (0.55 + 0.45*Math.min(1, Math.max(0, (per-.86)/.3))).toFixed(3);
+    el.style.zIndex = Math.round(300 - z2*0.5);
+    const orbH = el.firstElementChild.offsetHeight;
+    const orbOff = (el.offsetHeight/2 - orbH/2)*per;
+    pos[n.id] = [sx, sy - orbOff, orbH*per];
+  });
+
+  const orbBase = mobile ? 56 : 74;
+  lineEls.forEach(l=>{
+    const a = pos[l.dataset.a], b = pos[l.dataset.b];
+    l.setAttribute('x1',a[0]); l.setAttribute('y1',a[1]);
+    l.setAttribute('x2',b[0]); l.setAttribute('y2',b[1]);
+    if(l.classList.contains('lit')){ l.style.opacity = 1; }
+    else{
+      const depth = (a[2] + b[2]) / (2*orbBase); /* avg perspective of endpoints */
+      l.style.opacity = (0.35 + 0.65*Math.min(1, Math.max(0, (depth-.86)/.3))).toFixed(2);
+    }
+  });
+
+  if(selected){
+    const p = pos[selected], pad = 13, sz = p[2] + pad*2;
+    brackets.style.width = sz+'px'; brackets.style.height = sz+'px';
+    brackets.style.transform = `translate(${p[0]-sz/2}px, ${p[1]-sz/2}px)`;
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* ================= DUST ================= */
+const dc = document.getElementById('dust'), dctx = dc.getContext('2d');
+let specks = [];
+function dustInit(){
+  dc.width = innerWidth; dc.height = innerHeight;
+  const n = Math.min(110, Math.floor(innerWidth/14));
+  specks = Array.from({length:n},()=>({
+    x:Math.random()*dc.width, y:Math.random()*dc.height,
+    r:Math.random()*1.4+.3, vx:(Math.random()-.5)*.16, vy:(Math.random()-.5)*.14,
+    o:Math.random()*.45+.1
+  }));
+}
+window.addEventListener('resize', dustInit); dustInit();
+(function dust(){
+  dctx.clearRect(0,0,dc.width,dc.height);
+  if(!reduceMotion){
+    const oxp = -camYaw*90, oyp = camPitch*60;
+    specks.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=dc.width; if(p.x>dc.width)p.x=0;
+      if(p.y<0)p.y=dc.height; if(p.y>dc.height)p.y=0;
+      const dx = ((p.x + oxp*p.r) % dc.width + dc.width) % dc.width;
+      const dy = ((p.y + oyp*p.r) % dc.height + dc.height) % dc.height;
+      dctx.beginPath(); dctx.arc(dx,dy,p.r,0,7);
+      dctx.fillStyle = `rgba(210,220,255,${p.o})`; dctx.fill();
+    });
+  }
+  requestAnimationFrame(dust);
+})();
+
+/* ================= SELECTION / PANEL ================= */
+const panel = document.getElementById('panel');
+const panelTitle = document.getElementById('panelTitle');
+const panelEyebrow = document.getElementById('panelEyebrow');
+const panelBody = document.getElementById('panelBody');
+const hint = document.getElementById('hint');
+const pipsEl = document.getElementById('pips');
+const progLabel = document.getElementById('progLabel');
+NODES.forEach(()=>{ const p=document.createElement('i'); p.className='pip'; pipsEl.appendChild(p); });
+
+let selected = null;
+const scanned = new Set();
+let toastShown = false;
+
+function select(id){
+  const n = NODES.find(x=>x.id===id); if(!n) return;
+  if(selected === id && panel.classList.contains('open')) return;
+  if(selected && selected !== id) forgeSleep();
+  if(selected) nodeEls[selected].classList.remove('sel');
+  selected = id;
+  nodeEls[id].classList.add('sel');
+  lineEls.forEach(l=> l.classList.toggle('lit', l.dataset.a===id || l.dataset.b===id));
+  brackets.classList.add('on');
+
+  panelEyebrow.textContent = 'NODE://' + n.name;
+  panelTitle.textContent = n.title;
+  panelBody.innerHTML = n.html;
+  panelBody.scrollTop = 0;
+  panel.classList.add('open');
+  hint.innerHTML = 'NODE://' + n.name + ' OPEN<span class="kb"> · <b>ESC</b> CLOSE · <b>←→</b> JUMP</span>';
+  sfx.open();
+
+  if(!scanned.has(id)){
+    scanned.add(id);
+    nodeEls[id].classList.add('scanned');
+    sfx.scan();
+    updateProgress();
+  }
+  if(id === 'uplink') wireUplink();
+  if(id === 'forge') wireForge();
+}
+
+function closePanel(){
+  forgeSleep();
+  panel.classList.remove('open');
+  if(selected){ nodeEls[selected].classList.remove('sel'); }
+  lineEls.forEach(l=> l.classList.remove('lit'));
+  brackets.classList.remove('on');
+  selected = null;
+  hint.innerHTML = 'SELECT A NODE TO ACCESS ITS DATA<span class="kb"> · <b>←→</b> JUMP · <b>↵</b> OPEN</span>';
+  sfx.close();
+}
+document.getElementById('panelClose').addEventListener('click', closePanel);
+
+function updateProgress(){
+  progLabel.innerHTML = `SECTORS<span class="m-hide"> SCANNED</span> ${scanned.size}/${NODES.length}`;
+  [...pipsEl.children].forEach((p,i)=> p.classList.toggle('on', i < scanned.size));
+  if(scanned.size === NODES.length && !toastShown){
+    toastShown = true;
+    setTimeout(()=>{
+      document.getElementById('toast').classList.add('show');
+      sfx.win();
+      setTimeout(()=> document.getElementById('toast').classList.remove('show'), 9000);
+    }, 600);
+  }
+}
+
+/* cross-links inside panels */
+panelBody.addEventListener('click', e=>{
+  const b = e.target.closest('[data-goto]');
+  if(b) select(b.dataset.goto);
+});
+
+/* holo keypad ticks while typing in uplink fields */
+panelBody.addEventListener('keydown', e=>{
+  const tg = e.target.tagName;
+  if((tg === 'INPUT' || tg === 'TEXTAREA') && e.key.length === 1) sfx.key();
+});
+
+/* ================= UPLINK ================= */
+let uplinkPrefill = null;
+function wireUplink(){
+  const btn = document.getElementById('transmit');
+  if(!btn) return;
+  if(uplinkPrefill){
+    document.getElementById('f-brief').value = uplinkPrefill;
+    document.getElementById('f-type').value = 'On-site prototyping';
+    document.getElementById('txNote').textContent = 'FORGE specs loaded — add a reply channel and transmit.';
+    uplinkPrefill = null;
+  }
+  btn.addEventListener('click', async ()=>{
+    const name = document.getElementById('f-name').value.trim();
+    const contact = document.getElementById('f-contact').value.trim();
+    const type = document.getElementById('f-type').value;
+    const brief = document.getElementById('f-brief').value.trim();
+    const note = document.getElementById('txNote');
+    if(!contact){ note.textContent = 'Add a reply channel so we can reach you.'; sfx.err(); return; }
+    btn.disabled = true;
+    note.textContent = 'Transmitting…';
+    const ab = new AbortController();
+    const timer = setTimeout(()=> ab.abort(), 8000);
+    try{
+      const r = await fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz', {
+        method:'POST', signal:ab.signal,
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify({
+          _subject: 'Deployment request — ' + type,
+          name: name || '—', reply_channel: contact, mission_type: type, brief: brief || '—'
+        })
+      });
+      clearTimeout(timer);
+      if(!r.ok) throw new Error('bad status');
+      note.textContent = 'SIGNAL RECEIVED — we reply within one business day.';
+      btn.textContent = 'Transmitted ✓';
+      sfx.send();
+    }catch(err){
+      clearTimeout(timer);
+      /* channel unreachable — fall back to the visitor's mail app */
+      note.textContent = 'Direct channel busy — opening your mail app with the request pre-filled instead.';
+      sfx.send();
+      const subject = encodeURIComponent('Deployment request — ' + type);
+      const body = encodeURIComponent(
+        `Name: ${name || '—'}\nReply channel: ${contact}\nMission type: ${type}\n\nBrief:\n${brief || '—'}`);
+      window.location.href = `mailto:dispatch@marvelous3d.biz?subject=${subject}&body=${body}`;
+    }finally{
+      btn.disabled = false;
+    }
+  });
+}
+
+/* ================= FORGE — 3D PRINT SIMULATOR ================= */
+let threeLoading = null;
+function loadThree(){
+  if(window.THREE) return Promise.resolve();
+  if(threeLoading) return threeLoading;
+  threeLoading = new Promise((res, rej)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.onload = res;
+    s.onerror = ()=>{ threeLoading = null; rej(new Error('engine offline')); };
+    document.head.appendChild(s);
+  });
+  return threeLoading;
+}
+
+const forge = {
+  renderer:null, scene:null, camera:null, group:null, mesh:null, mat:null, grid:null,
+  loaded:false, fileName:'', baseDims:[0,0,0], baseVolMM3:0, maxDim:1,
+  s:{ color:'#6fe8dc', finish:'matte', scale:100, infill:20, layer:0.2, material:'PLA' },
+  yaw:.8, pitch:.5, dist:200, targetY:0, spin:true, dragging:false,
+  raf:0, vw:0, bound:false, ptrs:new Map(), pinchD:0, spinTimer:0
+};
+const FORGE_DENS = { PLA:1.24, PETG:1.27, TPU:1.21, Resin:1.10 };
+const FORGE_SWATCH = ['#eef1ff','#0b0d16','#6fe8dc','#8b7bff','#ff9ad5','#ffd166','#ff5d5d','#3ddc84'];
+
+function parseBinSTL(buf){
+  const dv = new DataView(buf);
+  const n = dv.getUint32(80, true);
+  if(84 + n*50 > buf.byteLength + 2) throw new Error('corrupt STL header');
+  const out = new Float32Array(n*9);
+  let o = 84, j = 0;
+  for(let i=0;i<n;i++){
+    o += 12;
+    for(let k=0;k<9;k++){ out[j++] = dv.getFloat32(o, true); o += 4; }
+    o += 2;
+  }
+  return out;
+}
+function parseAsciiSTL(text){
+  const re = /vertex\s+([-\d.eE+]+)\s+([-\d.eE+]+)\s+([-\d.eE+]+)/g;
+  const v = []; let m;
+  while((m = re.exec(text))) v.push(+m[1], +m[2], +m[3]);
+  return new Float32Array(v);
+}
+function parseOBJ(text){
+  const vs = [], out = [];
+  for(const ln of text.split('\n')){
+    if(ln[0] === 'v' && ln[1] === ' '){
+      const p = ln.trim().split(/\s+/);
+      vs.push(+p[1], +p[2], +p[3]);
+    } else if(ln[0] === 'f' && ln[1] === ' '){
+      const p = ln.trim().split(/\s+/).slice(1).map(t=>{
+        let i = parseInt(t, 10);
+        if(i < 0) i = vs.length/3 + 1 + i;
+        return (i-1)*3;
+      });
+      for(let k=1;k<p.length-1;k++){
+        for(const idx of [p[0], p[k], p[k+1]]) out.push(vs[idx], vs[idx+1], vs[idx+2]);
+      }
+    }
+  }
+  return new Float32Array(out);
+}
+function meshVolumeMM3(p){
+  let v = 0;
+  for(let i=0;i<p.length;i+=9){
+    const ax=p[i],ay=p[i+1],az=p[i+2],bx=p[i+3],by=p[i+4],bz=p[i+5],cx=p[i+6],cy=p[i+7],cz=p[i+8];
+    v += (ax*(by*cz - bz*cy) + bx*(cy*az - cz*ay) + cx*(ay*bz - az*by)) / 6;
+  }
+  return Math.abs(v);
+}
+
+function initForgeScene(){
+  if(forge.renderer) return;
+  forge.renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  forge.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  forge.scene = new THREE.Scene();
+  forge.scene.add(new THREE.HemisphereLight(0xcfd8ff, 0x0a0c18, .95));
+  const key = new THREE.DirectionalLight(0xffffff, 1.05); key.position.set(70,140,90);
+  const fill = new THREE.DirectionalLight(0xff9ad5, .28); fill.position.set(-90,40,-60);
+  forge.scene.add(key, fill);
+  forge.group = new THREE.Group();
+  forge.scene.add(forge.group);
+  forge.camera = new THREE.PerspectiveCamera(38, 4/3, .5, 9000);
+  forge.mat = new THREE.MeshStandardMaterial({color:forge.s.color, roughness:.88, metalness:.02});
+}
+
+function forgeGridRebuild(){
+  if(forge.grid){
+    forge.group.remove(forge.grid);
+    forge.grid.geometry.dispose(); forge.grid.material.dispose();
+  }
+  const span = Math.max(120, Math.ceil(forge.maxDim*forge.s.scale/100*1.9/20)*20);
+  forge.grid = new THREE.GridHelper(span, Math.min(30, span/10), 0x8b7bff, 0x2a2f55);
+  forge.grid.material.transparent = true;
+  forge.grid.material.opacity = .28;
+  forge.group.add(forge.grid);
+}
+
+function buildModel(posArr, isSTL, name){
+  if(forge.mesh){
+    forge.group.remove(forge.mesh);
+    forge.mesh.geometry.dispose();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+  if(isSTL) geo.rotateX(-Math.PI/2); /* STL is usually Z-up */
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const bb = geo.boundingBox, sz = new THREE.Vector3();
+  bb.getSize(sz);
+  geo.translate(-(bb.min.x+bb.max.x)/2, -bb.min.y, -(bb.min.z+bb.max.z)/2);
+  forge.mesh = new THREE.Mesh(geo, forge.mat);
+  forge.group.add(forge.mesh);
+  forge.baseDims = [sz.x, sz.y, sz.z];
+  forge.baseVolMM3 = meshVolumeMM3(posArr);
+  forge.maxDim = Math.max(sz.x, sz.y, sz.z) || 1;
+  forge.fileName = name;
+  forge.loaded = true;
+  forgeApplyScale();
+  forge.dist = forge.maxDim*forge.s.scale/100 * 2.3;
+  forge.yaw = .8; forge.pitch = .5; forge.spin = true;
+}
+function forgeApplyScale(){
+  const s = forge.s.scale/100;
+  if(forge.mesh) forge.mesh.scale.setScalar(s);
+  forge.targetY = forge.baseDims[1]*s/2;
+  forgeGridRebuild();
+}
+function forgeClampDist(){
+  const m = forge.maxDim*forge.s.scale/100;
+  forge.dist = Math.min(Math.max(forge.dist, m*.7), m*9);
+}
+
+function forgeEstimates(){
+  const s = forge.s, k = s.scale/100;
+  const dims = forge.baseDims.map(d=> d*k);
+  const volCM3 = forge.baseVolMM3 * k*k*k / 1000;
+  const dens = FORGE_DENS[s.material] || 1.24;
+  const grams = volCM3 * dens * (0.2 + 0.8*s.infill/100);
+  const hours = volCM3 * 0.05 / s.layer * (0.55 + 0.9*s.infill/100);
+  const cost = grams*0.12 + hours*8 + 15; /* + setup */
+  return { dims, volCM3, grams, hours, cost };
+}
+function forgeReadout(){
+  const e = forgeEstimates();
+  const g = id=> document.getElementById(id);
+  if(!g('fr-dims')) return;
+  g('fr-dims').textContent = e.dims.map(d=> d.toFixed(1)).join(' × ') + ' mm';
+  g('fr-vol').textContent = e.volCM3 >= .05 ? e.volCM3.toFixed(1) + ' cm³' : '—';
+  g('fr-wt').textContent = e.volCM3 >= .05 ? '≈ ' + e.grams.toFixed(0) + ' g ' + forge.s.material : '—';
+  const h = Math.floor(e.hours), mn = Math.round((e.hours-h)*60);
+  g('fr-time').textContent = e.volCM3 >= .05 ? '≈ ' + h + 'h ' + String(mn).padStart(2,'0') + 'm' : '—';
+  g('fr-cost').textContent = e.volCM3 >= .05 ? 'EST. QUOTE ≈ $' + e.cost.toFixed(0) : 'EST. QUOTE — open mesh';
+}
+
+function forgeResize(w){
+  const h = mobile ? 230 : 300;
+  forge.renderer.setSize(w, h);
+  forge.camera.aspect = w/h;
+  forge.camera.updateProjectionMatrix();
+  forge.vw = w;
+}
+function forgeLoop(){
+  forge.raf = requestAnimationFrame(forgeLoop);
+  const holder = forge.renderer.domElement.parentElement;
+  if(holder){
+    const w = holder.clientWidth;
+    if(w > 0 && Math.abs(w - forge.vw) > 4) forgeResize(w);
+  }
+  if(forge.spin && !forge.dragging && !reduceMotion) forge.yaw += .004;
+  const c = forge.camera, t = forge.targetY;
+  c.position.set(
+    forge.dist*Math.cos(forge.pitch)*Math.sin(forge.yaw),
+    t + forge.dist*Math.sin(forge.pitch),
+    forge.dist*Math.cos(forge.pitch)*Math.cos(forge.yaw));
+  c.lookAt(0, t, 0);
+  forge.renderer.render(forge.scene, forge.camera);
+}
+function forgeSleep(){
+  if(forge.raf){ cancelAnimationFrame(forge.raf); forge.raf = 0; }
+}
+
+function bindOrbit(){
+  if(forge.bound) return; forge.bound = true;
+  const el = forge.renderer.domElement;
+  el.addEventListener('pointerdown', e=>{
+    el.setPointerCapture(e.pointerId);
+    forge.ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    forge.dragging = true; forge.spin = false;
+    if(forge.ptrs.size === 2){
+      const p = [...forge.ptrs.values()];
+      forge.pinchD = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+    }
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!forge.ptrs.has(e.pointerId)) return;
+    const prev = forge.ptrs.get(e.pointerId);
+    if(forge.ptrs.size === 1){
+      forge.yaw += (e.clientX - prev.x) * .009;
+      forge.pitch = Math.min(1.35, Math.max(-.15, forge.pitch + (e.clientY - prev.y)*.007));
+    }
+    forge.ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(forge.ptrs.size === 2){
+      const p = [...forge.ptrs.values()];
+      const d = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+      if(forge.pinchD){ forge.dist *= forge.pinchD/d; forgeClampDist(); }
+      forge.pinchD = d;
+    }
+  });
+  const up = e=>{
+    forge.ptrs.delete(e.pointerId);
+    forge.pinchD = 0;
+    forge.dragging = forge.ptrs.size > 0;
+    clearTimeout(forge.spinTimer);
+    forge.spinTimer = setTimeout(()=> forge.spin = true, 2600);
+  };
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', up);
+  el.addEventListener('wheel', e=>{
+    e.preventDefault();
+    forge.dist *= 1 + e.deltaY*.0012;
+    forgeClampDist();
+  }, {passive:false});
+}
+
+async function forgeLoadFile(file){
+  const err = document.getElementById('fr-err');
+  try{
+    const buf = await file.arrayBuffer();
+    const lower = file.name.toLowerCase();
+    let posArr, stl = false;
+    if(lower.endsWith('.obj')){
+      posArr = parseOBJ(new TextDecoder().decode(buf));
+    } else {
+      const head = new TextDecoder().decode(buf.slice(0, 512)).toLowerCase();
+      if(head.startsWith('solid') && head.includes('facet')) posArr = parseAsciiSTL(new TextDecoder().decode(buf));
+      else posArr = parseBinSTL(buf);
+      stl = true;
+    }
+    if(!posArr || posArr.length < 9) throw new Error('no triangles found');
+    if(posArr.length/9 > 1500000) throw new Error('over the 1.5M-triangle cap');
+    buildModel(posArr, stl, file.name);
+    renderForgeUI();
+    sfx.scan(); sweep(420, 1200, .35, 'sine', .04);
+  }catch(ex){
+    if(err) err.textContent = 'Could not read that file — ' + ex.message + '. Try a standard STL or OBJ.';
+    sfx.err();
+  }
+}
+
+function renderForgeUI(mode){
+  const root = document.getElementById('forgeRoot');
+  if(!root) return;
+  const state = mode || (forge.loaded ? 'loaded' : 'drop');
+
+  if(state === 'drop'){
+    root.innerHTML = `
+      <div class="forge-drop" id="fr-drop">
+        <h4>DROP A MODEL FILE</h4>
+        <p>.STL or .OBJ · or tap to browse</p>
+        <p class="forge-note">Files are parsed on your device — nothing uploads until you transmit specs.</p>
+      </div>
+      <input type="file" id="fr-file" accept=".stl,.obj" style="display:none">
+      <p class="forge-note" id="fr-err"></p>
+      ${forge.loaded ? '<div class="cta-row"><button class="cta" id="fr-back">Back to ' + forge.fileName + '</button></div>' : ''}`;
+    const drop = document.getElementById('fr-drop');
+    const inp = document.getElementById('fr-file');
+    drop.addEventListener('click', ()=> inp.click());
+    inp.addEventListener('change', ()=>{ if(inp.files[0]) forgeLoadFile(inp.files[0]); });
+    ['dragover','dragenter'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e=>{ if(e.dataTransfer.files[0]) forgeLoadFile(e.dataTransfer.files[0]); });
+    const back = document.getElementById('fr-back');
+    if(back) back.addEventListener('click', ()=> renderForgeUI('loaded'));
+    return;
+  }
+
+  const s = forge.s;
+  root.innerHTML = `
+    <div class="forge-view" id="fr-view">
+      <div class="forge-file">${forge.fileName}</div>
+      <div class="forge-hint">DRAG TO ORBIT · PINCH / SCROLL TO ZOOM</div>
+    </div>
+    <div class="swatches" id="fr-sw">${FORGE_SWATCH.map(c=>
+      `<button class="sw${c===s.color?' on':''}" data-c="${c}" style="background:${c}" aria-label="Filament color ${c}"></button>`).join('')}
+    </div>
+    <div class="forge-row"><label>SIZE</label>
+      <input type="range" id="fr-scale" min="25" max="300" step="5" value="${s.scale}">
+      <span class="val" id="fr-scaleV">${s.scale}%</span></div>
+    <div class="forge-row"><label>INFILL</label>
+      <input type="range" id="fr-infill" min="0" max="100" step="5" value="${s.infill}">
+      <span class="val" id="fr-infillV">${s.infill}%</span></div>
+    <div class="forge-row"><label>LAYER</label>
+      <select id="fr-layer">
+        <option value="0.1"${s.layer===0.1?' selected':''}>0.10 mm — fine</option>
+        <option value="0.2"${s.layer===0.2?' selected':''}>0.20 mm — standard</option>
+        <option value="0.3"${s.layer===0.3?' selected':''}>0.30 mm — draft</option>
+      </select></div>
+    <div class="forge-row"><label>MATERIAL</label>
+      <select id="fr-mat">${Object.keys(FORGE_DENS).map(m=>
+        `<option${m===s.material?' selected':''}>${m}</option>`).join('')}</select></div>
+    <div class="forge-row"><label>FINISH</label>
+      <select id="fr-fin">
+        <option value="matte"${s.finish==='matte'?' selected':''}>Matte</option>
+        <option value="silk"${s.finish==='silk'?' selected':''}>Silk</option>
+        <option value="gloss"${s.finish==='gloss'?' selected':''}>Gloss resin</option>
+      </select></div>
+    <div class="forge-est">
+      <div class="spec"><span class="k">DIMENSIONS</span><span class="v" id="fr-dims"></span></div>
+      <div class="spec"><span class="k">VOLUME</span><span class="v" id="fr-vol"></span></div>
+      <div class="spec"><span class="k">MATERIAL</span><span class="v" id="fr-wt"></span></div>
+      <div class="spec"><span class="k">PRINT TIME</span><span class="v" id="fr-time"></span></div>
+      <div class="big" id="fr-cost"></div>
+    </div>
+    <div class="cta-row">
+      <button class="cta solid" id="fr-send">Send specs to uplink</button>
+      <button class="cta" id="fr-new">Load another file</button>
+    </div>
+    <p class="forge-note">Simulator ballparks only — your fixed quote comes back with the transmission. Files never leave your device.</p>`;
+
+  const view = document.getElementById('fr-view');
+  view.insertBefore(forge.renderer.domElement, view.firstChild);
+  forgeResize(view.clientWidth || 340);
+  bindOrbit();
+  forgeReadout();
+  if(!forge.raf) forgeLoop();
+
+  document.getElementById('fr-sw').addEventListener('click', e=>{
+    const b = e.target.closest('.sw'); if(!b) return;
+    forge.s.color = b.dataset.c;
+    forge.mat.color.set(b.dataset.c);
+    [...e.currentTarget.children].forEach(x=> x.classList.toggle('on', x===b));
+    sfx.key();
+  });
+  const scale = document.getElementById('fr-scale');
+  scale.addEventListener('input', ()=>{
+    forge.s.scale = +scale.value;
+    document.getElementById('fr-scaleV').textContent = scale.value + '%';
+    forgeApplyScale(); forgeClampDist(); forgeReadout();
+  });
+  const infill = document.getElementById('fr-infill');
+  infill.addEventListener('input', ()=>{
+    forge.s.infill = +infill.value;
+    document.getElementById('fr-infillV').textContent = infill.value + '%';
+    forgeReadout();
+  });
+  document.getElementById('fr-layer').addEventListener('change', e=>{ forge.s.layer = +e.target.value; forgeReadout(); sfx.key(); });
+  document.getElementById('fr-mat').addEventListener('change', e=>{ forge.s.material = e.target.value; forgeReadout(); sfx.key(); });
+  document.getElementById('fr-fin').addEventListener('change', e=>{
+    forge.s.finish = e.target.value;
+    const f = forge.s.finish;
+    forge.mat.roughness = f==='matte' ? .88 : f==='silk' ? .35 : .18;
+    forge.mat.metalness = f==='silk' ? .5 : f==='gloss' ? .08 : .02;
+    sfx.key();
+  });
+  document.getElementById('fr-new').addEventListener('click', ()=> renderForgeUI('drop'));
+  document.getElementById('fr-send').addEventListener('click', ()=>{
+    const e2 = forgeEstimates();
+    const h = Math.floor(e2.hours), mn = Math.round((e2.hours-h)*60);
+    uplinkPrefill =
+`FORGE CONFIG — ${forge.fileName}
+Dimensions: ${e2.dims.map(d=>d.toFixed(1)).join(' × ')} mm (scale ${forge.s.scale}%)
+Material: ${forge.s.material} · ${forge.s.finish} finish · color ${forge.s.color}
+Layer ${forge.s.layer.toFixed(2)} mm · Infill ${forge.s.infill}%
+Simulator estimate: ≈ ${e2.grams.toFixed(0)} g · ≈ ${h}h ${String(mn).padStart(2,'0')}m · ≈ $${e2.cost.toFixed(0)}`;
+    select('uplink');
+  });
+}
+
+async function wireForge(){
+  const root = document.getElementById('forgeRoot');
+  if(!root) return;
+  try{ await loadThree(); }
+  catch(e){
+    root.innerHTML = '<p>The 3D engine could not load — check your connection and reopen this node.</p>';
+    return;
+  }
+  initForgeScene();
+  renderForgeUI();
+}
+
+/* ================= KEYBOARD ================= */
+window.addEventListener('keydown', e=>{
+  if(e.__bootSkip) return;
+  if(e.key === 'Escape'){ closePanel(); return; }
+  const tag = e.target && e.target.tagName;
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){
+    e.preventDefault(); step(1);
+  } else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){
+    e.preventDefault(); step(-1);
+  } else if(e.key === 'Enter' && document.activeElement && document.activeElement.classList.contains('node')){
+    /* native button behavior handles it */
+  }
+});
+function step(dir){
+  const idx = selected ? NODES.findIndex(n=>n.id===selected) : -1;
+  const next = NODES[(idx + dir + NODES.length) % NODES.length];
+  select(next.id);
+  nodeEls[next.id].focus({preventScroll:true});
+}
+
+/* ================= HUD ================= */
+const clockEl = document.getElementById('clock');
+setInterval(()=>{
+  const d = new Date();
+  clockEl.textContent = [d.getHours(),d.getMinutes(),d.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+}, 1000);
+
+const sfxBtn = document.getElementById('sfxBtn');
+sfxBtn.addEventListener('click', ()=>{
+  audioOn = !audioOn;
+  sfxBtn.textContent = audioOn ? 'SFX ON' : 'SFX OFF';
+  sfxBtn.setAttribute('aria-pressed', String(audioOn));
+  if(audioOn){ sfx.scan(); ambientStart(); } else { ambientStop(); }
+});
+
+/* unlock audio on first gesture, then fade the hologram hum in */
+window.addEventListener('pointerdown', ()=>{
+  const c = ac(); if(!c) return;
+  if(c.state === 'suspended'){ c.resume().then(ambientStart); } else { ambientStart(); }
+}, {once:true});
+</script>
+</body>
+</html>
