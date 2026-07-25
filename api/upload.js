@@ -27,6 +27,7 @@ module.exports = async (req, res) => {
 
   const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN;
   const hasOidc = !!process.env.VERCEL_OIDC_TOKEN;
+  const hasStoreId = !!process.env.BLOB_STORE_ID;
 
   if (req.method === 'GET') {
     return res.status(200).json({
@@ -34,7 +35,8 @@ module.exports = async (req, res) => {
       service: 'marvelous3d-upload',
       auth_token: hasToken,
       auth_oidc: hasOidc,
-      blob_configured: hasToken || hasOidc
+      store_id: hasStoreId,
+      blob_configured: hasToken || (hasOidc && hasStoreId)
     });
   }
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
