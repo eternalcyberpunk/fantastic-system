@@ -369,6 +369,104 @@ button.chip:hover .fx{color:#ff8a8a}
 .forge-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ice-faint);
   line-height:1.6;margin-top:10px}
 
+/* create — what can we create? */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cr-tools{margin:14px 0 16px}
+.cr-search-wrap{display:flex;align-items:center;gap:9px;padding:10px 14px;min-height:46px;border-radius:999px;
+  border:1px solid var(--edge);background:rgba(255,255,255,.03);transition:.2s;margin-bottom:11px}
+.cr-search-wrap:focus-within{border-color:var(--prism-cyan);box-shadow:0 0 12px rgb(var(--c2)/.2)}
+.cr-search-wrap svg{width:15px;height:15px;flex:none;fill:none;stroke:var(--ice-faint);stroke-width:1.6;stroke-linecap:round}
+.cr-search-wrap input{flex:1;min-width:0;background:none;border:0;color:var(--ice);
+  font-family:var(--body);font-size:13.5px;outline:none;height:26px;line-height:26px}
+.cr-search-wrap input::-webkit-search-cancel-button{filter:invert(.7)}
+.cr-chips{flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.cr-count{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--ice-faint);margin:0}
+.cr-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:6px}
+.cr-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;
+  border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:15px 14px 14px;
+  background:rgba(255,255,255,.03);transition:border-color .25s,transform .25s,box-shadow .25s;
+  animation:crIn .45s cubic-bezier(.22,.9,.3,1) both}
+@keyframes crIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.cr-card:hover{border-color:rgb(var(--c2)/.45);transform:translateY(-3px);
+  box-shadow:0 10px 26px rgba(0,0,0,.34),0 0 20px rgb(var(--c2)/.08)}
+.cr-card.feat{grid-column:1/-1;align-items:center;text-align:center;
+  border-color:rgb(var(--c1)/.4);
+  background:linear-gradient(150deg,rgb(var(--c1)/.13),rgba(255,255,255,.02) 55%,rgb(var(--c2)/.10))}
+.cr-ico{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:11px;overflow:hidden;
+  background:linear-gradient(145deg,rgb(var(--c1)/.16),rgb(var(--c2)/.11))}
+.cr-ico svg{width:29px;height:29px;fill:none;stroke:var(--prism-cyan);stroke-width:1.25;
+  stroke-linecap:round;stroke-linejoin:round}
+.cr-ico img{width:100%;height:100%;object-fit:cover}
+.cr-card.feat .cr-ico{width:62px;height:62px}
+.cr-card.feat .cr-ico svg{width:35px;height:35px}
+.cr-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--prism-cyan);
+  padding:3px 8px;border-radius:999px;border:1px solid rgb(var(--c2)/.3);margin-bottom:8px}
+.cr-card h5{font-size:14px;font-weight:500;letter-spacing:.02em;margin-bottom:5px}
+.cr-blurb{font-size:12.5px;line-height:1.55;color:var(--ice-dim);margin:0 0 11px}
+.cr-more{width:100%;margin-bottom:11px}
+.cr-more summary{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--prism-cyan);
+  cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;
+  min-height:34px;padding:9px 0;text-transform:uppercase;border-radius:6px;transition:color .2s}
+.cr-more summary:hover{color:var(--ice)}
+.cr-more summary::-webkit-details-marker{display:none}
+.cr-more summary::after{content:"+";font-size:13px;line-height:1;transition:transform .25s}
+.cr-more[open] summary::after{transform:rotate(45deg)}
+.cr-body{animation:crIn .35s ease both;padding-top:8px}
+.cr-msg{font-size:12.5px;line-height:1.5;color:var(--ice);margin:0 0 8px;
+  padding-left:9px;border-left:2px solid rgb(var(--c2)/.5)}
+.cr-list{list-style:none;display:flex;flex-wrap:wrap;gap:5px;margin:0}
+.cr-list li{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ice-dim);
+  padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.05)}
+.cr-card .cta{margin-top:auto}
+.cr-empty{grid-column:1/-1;font-size:13px;color:var(--ice-dim);text-align:center;padding:18px 0;margin:0}
+
+/* comparison table */
+.cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:4px}
+.cmp th,.cmp td{text-align:left;padding:10px 9px;border-bottom:1px solid rgba(255,255,255,.09);
+  vertical-align:top}
+.cmp thead th{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--ice-faint);
+  text-transform:uppercase;font-weight:400}
+.cmp tbody th{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--ice-faint);
+  font-weight:400;width:31%}
+.cmp td{color:var(--ice-dim)}
+.cmp td.win{color:var(--ice)}
+.cmp td.win::before{content:"\2713";color:var(--prism-cyan);margin-right:6px;font-size:11px}
+
+/* faq */
+.faq-item{border-bottom:1px solid rgba(255,255,255,.09)}
+.faq-item summary{font-size:13px;line-height:1.45;padding:13px 26px 13px 0;cursor:pointer;
+  list-style:none;position:relative;transition:color .2s}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary:hover{color:var(--prism-cyan)}
+.faq-item summary::after{content:"";position:absolute;right:4px;top:19px;width:8px;height:8px;
+  border-right:1.5px solid var(--prism-cyan);border-bottom:1.5px solid var(--prism-cyan);
+  transform:rotate(45deg);transition:transform .25s}
+.faq-item[open] summary::after{transform:rotate(-135deg);top:22px}
+.faq-item p{font-size:12.5px;line-height:1.6;color:var(--ice-dim);margin:0 0 14px;
+  padding-right:8px;animation:crIn .3s ease both}
+
+/* closing cta */
+.cr-cta{margin-top:20px;padding:22px 18px;border-radius:16px;text-align:center;position:relative;
+  overflow:hidden;border:1px solid rgb(var(--c2)/.28);
+  background:linear-gradient(140deg,rgb(var(--c1)/.16),rgba(8,10,24,.5) 50%,rgb(var(--c3)/.14))}
+.cr-cta::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-50%;
+  background:linear-gradient(100deg,transparent,rgba(235,250,255,.07) 50%,transparent);
+  transform:skewX(-18deg);animation:holosweep 6s ease-in-out infinite;pointer-events:none}
+.cr-cta h4{font-family:var(--display);font-size:16px;letter-spacing:.06em;margin-bottom:7px}
+.cr-cta p{font-size:12.5px;color:var(--ice-dim);margin:0 auto 15px;max-width:34ch}
+.cr-cta .cta-row{justify-content:center}
+@media (max-width:760px){
+  .cr-grid{grid-template-columns:1fr}
+  .cmp thead{display:none}
+  .cmp,.cmp tbody,.cmp tr,.cmp th,.cmp td{display:block;width:auto}
+  .cmp tr{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.09)}
+  .cmp th,.cmp td{border:0;padding:3px 0}
+  .cmp tbody th{width:auto;color:var(--ice);font-size:11px;letter-spacing:.14em;margin-bottom:3px}
+  .cmp td::before{content:attr(data-l) " \2014 ";font-family:var(--mono);font-size:9px;
+    letter-spacing:.12em;color:var(--ice-faint)}
+}
+
 /* drops / shop */
 .shop-tabs{display:flex;gap:8px;margin-bottom:14px}
 .shop-tab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;padding:8px 14px;border-radius:999px;
@@ -526,6 +624,7 @@ button.chip:hover .fx{color:#ff8a8a}
   *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
 }
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"ProfessionalService","@id":"https://marvelous3d.biz/#biz","name":"Marvelous 3D Printing","description":"Mobile 3D design and fabrication serving Greater Los Angeles — replacement parts, rapid prototyping, automotive, business and custom fabrication, delivered on site.","url":"https://marvelous3d.biz","email":"dispatch@marvelous3d.biz","telephone":"+1-909-455-4457","areaServed":{"@type":"City","name":"Los Angeles"},"address":{"@type":"PostalAddress","addressRegion":"CA","addressCountry":"US"},"makesOffer":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Replacement Parts"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Rapid Prototyping"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Automotive Parts"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Home Organization"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Business Solutions"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Personalized Gifts"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Education & STEM"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Cosplay & Props"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Engineering Tooling"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Custom Fabrication"}}]},{"@type":"FAQPage","@id":"https://marvelous3d.biz/#faq","mainEntity":[{"@type":"Question","name":"Can you recreate broken plastic parts?","acceptedAnswer":{"@type":"Answer","text":"Usually yes. Send photos with a ruler or calipers in frame, or hand us the pieces — even a shattered part gives us the geometry. We model it, print a test fit, then run the final in a material suited to the job."}},{"@type":"Question","name":"Do I need a 3D model?","acceptedAnswer":{"@type":"Answer","text":"No. Plenty of jobs start from a photo, a sketch on a napkin, or the broken original. If you do have an STL, OBJ, or STEP file, drop it into the FORGE node and we’ll quote straight from it."}},{"@type":"Question","name":"Can you help design my idea?","acceptedAnswer":{"@type":"Answer","text":"That’s most of what we do. Describe the problem and the constraints — what it mounts to, what it holds, how much abuse it takes — and we handle the CAD. You approve the design before anything prints."}},{"@type":"Question","name":"How long does printing take?","acceptedAnswer":{"@type":"Answer","text":"Small parts often finish the same visit. Mid-size jobs typically run a few hours, and multi-part or large-format work usually lands in two to five days. Rush service is available."}},{"@type":"Question","name":"What materials do you offer?","acceptedAnswer":{"@type":"Answer","text":"PLA for display and prototypes, PETG for heat and moisture, TPU for anything flexible, PA-CF nylon for structural loads, and resin when fine detail matters. We’ll recommend based on where the part lives."}},{"@type":"Question","name":"Do you deliver locally?","acceptedAnswer":{"@type":"Answer","text":"Yes — we drive to you. Greater Los Angeles is our core zone with no call-out fee inside 25 miles, a flat fee out to 60, and custom quotes beyond. Shipping is available too."}},{"@type":"Question","name":"Can you print prototypes?","acceptedAnswer":{"@type":"Answer","text":"Yes, including functional ones meant to be tested rather than admired. We can iterate through several revisions in the time a traditional shop takes to quote the first."}},{"@type":"Question","name":"Do you sign NDAs?","acceptedAnswer":{"@type":"Answer","text":"Happily, before you share anything sensitive. Client files aren’t reused, resold, or shown in our gallery without written permission."}}]}]}</script>
 </head>
 <body class="sig-prism">
 
@@ -590,7 +689,7 @@ button.chip:hover .fx{color:#ff8a8a}
 <!-- ============ HUD BOTTOM ============ -->
 <footer class="hud-bottom">
   <div class="progress">
-    <span id="progLabel">SECTORS<span class="m-hide"> SCANNED</span> 0/9</span>
+    <span id="progLabel">SECTORS<span class="m-hide"> SCANNED</span> 0/10</span>
     <span class="pips" id="pips"></span>
   </div>
   <div class="hint" id="hint">SELECT A NODE TO ACCESS ITS DATA<span class="kb"> · <b>←→</b> JUMP · <b>↵</b> OPEN</span></div>
@@ -612,7 +711,7 @@ button.chip:hover .fx{color:#ff8a8a}
 
 <div id="toast" role="status">
   <h5>FULL SYNC ACHIEVED</h5>
-  <p>All nine sectors scanned. Mention code <b>FULLSYNC</b> when you book — 5% off your first deployment.</p>
+  <p>All ten sectors scanned. Mention code <b>FULLSYNC</b> when you book — 5% off your first deployment.</p>
 </div>
 
 <div id="terminal" role="dialog" aria-modal="true" aria-label="Checkout terminal"></div>
@@ -627,6 +726,7 @@ const ICONS = {
   archive:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><path d="M17 13.7v6.6M13.7 17h6.6"/></svg>',
   range:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" opacity=".55"/><circle cx="12" cy="12" r="1.3"/><path d="M12 12l5.8-5.8"/></svg>',
   forge:'<svg viewBox="0 0 24 24"><path d="M12 4.4l5.8 3.3v6.6L12 17.6l-5.8-3.3V7.7L12 4.4z"/><path d="M12 11l5.8-3.3M12 11v6.6M12 11L6.2 7.7"/><path d="M20.6 15.8a9.4 9.4 0 01-4.1 4.3M3.4 8.2a9.4 9.4 0 014.1-4.3" opacity=".6"/></svg>',
+  create:'<svg viewBox="0 0 24 24"><path d="M9.4 17.4h5.2M10 20.3h4"/><path d="M12 2.6a6.6 6.6 0 00-3.8 12c.5.4.8 1 .8 1.6h6c0-.6.3-1.2.8-1.6A6.6 6.6 0 0012 2.6z"/><path d="M12 8.4v4.4M9.9 10.3h4.2" opacity=".65"/></svg>',
   drops:'<svg viewBox="0 0 24 24"><path d="M6 8.2h12l-1.2 12a1.9 1.9 0 01-1.9 1.7H9.1a1.9 1.9 0 01-1.9-1.7L6 8.2z"/><path d="M9 8.2V6.9a3 3 0 016 0v1.3"/><path d="M9.6 13c.8 1.6 4 1.6 4.8 0" opacity=".65"/></svg>',
   uplink:'<svg viewBox="0 0 24 24"><path d="M12 20V9"/><path d="M7.5 12.5L12 8l4.5 4.5"/><path d="M5 7a9.5 9.5 0 0114 0" opacity=".55"/><path d="M7.6 9.6a5.8 5.8 0 018.8 0" opacity=".8"/></svg>',
   check:'<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>'
@@ -643,7 +743,7 @@ const GALLERY = [
 
 const NODES = [
   {id:'core', name:'CORE', role:'OVERVIEW', icon:'core',
-   d:[49,44], m:[50,9],
+   d:[49,44], m:[50,8],
    title:'The print lab that rolls to you',
    html:`<p><strong>Marvelous 3D Printing is a full fabrication lab built into a mobile rig.</strong> Prototypes, replacement parts, props, short production runs — printed at your door, your event, or your job site, anywhere in greater Los Angeles.</p>
    <p>No shipping delays. No waiting on a shop across town. You send the idea; we bring the machines and print while you watch.</p>
@@ -654,7 +754,7 @@ const NODES = [
    </div>`},
 
   {id:'services', name:'SERVICES', role:'MISSION TYPES', icon:'services',
-   d:[23,26], m:[25,23],
+   d:[23,26], m:[25,22],
    title:'Mission types',
    html:`<div class="svc"><h4>ON-SITE PROTOTYPING</h4><p>Iterate in real time. Print, test, tweak the model, and reprint in the same session — hours instead of weeks.</p></div>
    <div class="svc"><h4>REPLACEMENT PARTS</h4><p>Bring us the broken piece. We measure or scan it, model a fix, and print it tougher than the original.</p></div>
@@ -672,7 +772,7 @@ const NODES = [
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Request a quote</button><button class="cta" data-goto="range">Check your zone</button></div>`},
 
   {id:'rig', name:'THE RIG', role:'MOBILE UNIT', icon:'rig',
-   d:[75,24], m:[75,23],
+   d:[75,24], m:[75,22],
    title:'One vehicle. A whole print farm.',
    html:`<p>The rig is a climate-controlled fabrication bay on wheels — every machine racked, powered, and calibrated before we reach you.</p>
    <div class="spec"><span class="k">FDM BAYS</span><span class="v"><em>6× enclosed printers</em> · 0.25–0.8&thinsp;mm nozzles · up to 300&thinsp;°C</span></div>
@@ -685,7 +785,7 @@ const NODES = [
    <div class="cta-row"><button class="cta" data-goto="archive">See what it prints</button></div>`},
 
   {id:'protocol', name:'PROTOCOL', role:'HOW IT WORKS', icon:'protocol',
-   d:[17,63], m:[25,39],
+   d:[17,63], m:[25,37],
    title:'Four steps, one visit',
    html:`<div class="step"><div><div class="step-num">01</div><div class="step-line"></div></div><div><h4>TRANSMIT</h4><p>Send a model, a sketch, or a photo of the broken part. We confirm scope and lock a fixed quote — usually within hours.</p></div></div>
    <div class="step"><div><div class="step-num">02</div><div class="step-line"></div></div><div><h4>DEPLOY</h4><p>Pick a window. The rig rolls to your address and is printing within fifteen minutes of parking.</p></div></div>
@@ -694,19 +794,19 @@ const NODES = [
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Start at step 01</button></div>`},
 
   {id:'forge', name:'FORGE', role:'PRINT SIMULATOR', icon:'forge',
-   d:[34,57], m:[75,39],
+   d:[34,57], m:[75,37],
    title:'Drop a model. Watch it become real.',
    html:`<div id="forgeRoot"><p>Loading the forge…</p></div>`},
 
   {id:'archive', name:'ARCHIVE', role:'PAST PRINTS', icon:'archive',
-   d:[66,72], m:[25,55],
+   d:[66,72], m:[25,52],
    title:'Pulled from the archive',
    html:`<p>A few recent missions — from one-hour rescue parts to multi-day builds.</p>
    <div class="arch-grid">${GALLERY.map(g=>`<div class="arch"><div class="arch-thumb">${g.svg}</div><div class="arch-info"><h5>${g.t}</h5><span>${g.m}</span></div></div>`).join('')}</div>
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Add yours to the archive</button></div>`},
 
   {id:'range', name:'RANGE', role:'SERVICE AREA', icon:'range',
-   d:[85,50], m:[75,55],
+   d:[85,50], m:[75,52],
    title:'Deployment range',
    html:`<div class="radar-wrap"><svg class="radar" viewBox="0 0 200 200" aria-hidden="true">
      <circle cx="100" cy="100" r="92" fill="none" stroke="rgb(var(--c3)/.28)" stroke-dasharray="3 5"/>
@@ -727,12 +827,47 @@ const NODES = [
    <div class="cta-row"><button class="cta solid" data-goto="uplink">Request your window</button></div>`},
 
   {id:'drops', name:'DROPS', role:'SHOP', icon:'drops',
-   d:[59,16], m:[25,72],
+   d:[59,16], m:[25,67],
    title:'Printed goods. Fresh off the rig.',
    html:`<div id="shopRoot"></div>`},
 
+  {id:'create', name:'CREATE', role:'WHAT WE MAKE', icon:'create',
+   d:[72,42], m:[75,67],
+   title:'What can we create?',
+   html:`
+   <p>Most people find us with a broken part or a half-formed idea. Both are a fine place to start \u2014 here's the range of what comes off the rig.</p>
+
+   <div class="cr-tools">
+     <label class="cr-search-wrap" for="crSearch">
+       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8L21 21"/></svg>
+       <input id="crSearch" type="search" placeholder="Search: gear, dash mount, helmet\u2026" aria-label="Search what we can create">
+     </label>
+     <div class="shop-tabs cr-chips" id="crChips" role="group" aria-label="Filter by category"></div>
+     <p class="cr-count" id="crCount" role="status" aria-live="polite"></p>
+   </div>
+
+   <div class="cr-grid" id="crGrid"></div>
+
+   <div class="term-sec">TRADITIONAL MANUFACTURING VS. THE RIG</div>
+   <table class="cmp">
+     <thead><tr><th scope="col"><span class="vh">Aspect</span></th><th scope="col">Traditional</th><th scope="col">Marvelous 3D</th></tr></thead>
+     <tbody id="crCmp"></tbody>
+   </table>
+
+   <div class="term-sec">COMMON QUESTIONS</div>
+   <div class="faq" id="crFaq"></div>
+
+   <div class="cr-cta">
+     <h4>Need something custom?</h4>
+     <p>From replacement parts to product prototypes, we'll help bring your idea to life.</p>
+     <div class="cta-row">
+       <button class="cta solid" id="crCtaQuote">Get a free quote</button>
+       <button class="cta" id="crCtaBrowse">Browse services</button>
+     </div>
+   </div>`},
+
   {id:'uplink', name:'UPLINK', role:'BOOK / CONTACT', icon:'uplink',
-   d:[40,80], m:[75,72],
+   d:[40,80], m:[50,84],
    title:'Open a channel',
    html:`<p>Tell us what you need printed and where. We reply with a fixed quote and the next available window — within one business day.</p>
    <div class="field"><label for="f-name">CALLSIGN / NAME</label><input id="f-name" type="text" placeholder="Ada Reyes" autocomplete="name"></div>
@@ -764,7 +899,8 @@ const EDGES = [
   ['core','services'],['core','rig'],['core','protocol'],['core','archive'],['core','uplink'],
   ['rig','range'],['services','protocol'],['protocol','uplink'],['range','uplink'],['services','archive'],
   ['core','forge'],['forge','uplink'],['forge','rig'],
-  ['core','drops'],['drops','uplink'],['drops','rig']
+  ['core','drops'],['drops','uplink'],['drops','rig'],
+  ['core','create'],['create','range'],['create','rig']
 ];
 
 /* ================= AUDIO ================= */
@@ -940,17 +1076,19 @@ const SIGILS = {
     layout:{
       core:    {d:[50,46], m:[50,46]},
       services:{d:[50,22], m:[50,14]},
-      rig:     {d:[66,27], m:[72,22]},
-      range:   {d:[80,46], m:[84,46]},
-      drops:   {d:[66,65], m:[72,70]},
-      uplink:  {d:[50,70], m:[50,78]},
-      archive: {d:[34,65], m:[28,70]},
-      protocol:{d:[20,46], m:[16,46]},
-      forge:   {d:[34,27], m:[28,22]}
+      rig:     {d:[69,28], m:[72,21]},
+      range:   {d:[80,42], m:[84,40]},
+      drops:   {d:[76,58], m:[79,62]},
+      create:  {d:[60,69], m:[62,76]},
+      uplink:  {d:[40,69], m:[38,76]},
+      archive: {d:[24,58], m:[21,62]},
+      protocol:{d:[20,42], m:[17,40]},
+      forge:   {d:[31,28], m:[28,21]}
     },
     edges:[
-      ['services','rig'],['rig','range'],['range','drops'],['drops','uplink'],
-      ['uplink','archive'],['archive','protocol'],['protocol','forge'],['forge','services'],
+      ['services','rig'],['rig','range'],['range','drops'],['drops','create'],
+      ['create','uplink'],['uplink','archive'],['archive','protocol'],
+      ['protocol','forge'],['forge','services'],
       ['core','services'],['core','range'],['core','uplink'],['core','protocol']
     ]
   },
@@ -958,37 +1096,40 @@ const SIGILS = {
     name:'HELIX',
     theme:{ c1:'92 214 168', c2:'178 255 128', c3:'88 220 255', void:'#04100d', abyss:'#0a2020' },
     layout:{
-      core:    {d:[50,50], m:[50,44]},
-      services:{d:[60,58], m:[66,53]},
-      rig:     {d:[46,66], m:[48,63]},
-      protocol:{d:[31,60], m:[28,56]},
-      forge:   {d:[26,45], m:[22,40]},
-      archive: {d:[36,29], m:[34,25]},
-      range:   {d:[55,22], m:[56,17]},
-      drops:   {d:[74,29], m:[76,24]},
-      uplink:  {d:[86,46], m:[84,42]}
+      core:    {d:[50,48], m:[50,44]},
+      services:{d:[58,55], m:[62,52]},
+      rig:     {d:[50,61], m:[50,60]},
+      protocol:{d:[37,60], m:[32,60]},
+      forge:   {d:[28,48], m:[24,44]},
+      archive: {d:[32,33], m:[28,28]},
+      range:   {d:[49,23], m:[48,18]},
+      drops:   {d:[72,28], m:[72,23]},
+      create:  {d:[86,47], m:[86,42]},
+      uplink:  {d:[79,71], m:[78,68]}
     },
     edges:[
       ['core','services'],['services','rig'],['rig','protocol'],['protocol','forge'],
-      ['forge','archive'],['archive','range'],['range','drops'],['drops','uplink']
+      ['forge','archive'],['archive','range'],['range','drops'],['drops','create'],
+      ['create','uplink']
     ]
   },
   stave: {
     name:'STAVE',
     theme:{ c1:'255 154 82', c2:'255 206 106', c3:'255 106 106', void:'#100804', abyss:'#241206' },
     layout:{
-      services:{d:[50,12], m:[50,9]},
-      core:    {d:[50,32], m:[50,30]},
-      forge:   {d:[50,52], m:[50,50]},
-      drops:   {d:[50,70], m:[50,68]},
+      services:{d:[50,8],  m:[50,6]},
+      core:    {d:[50,24], m:[50,22]},
+      create:  {d:[50,40], m:[50,38]},
+      forge:   {d:[50,56], m:[50,54]},
+      drops:   {d:[50,72], m:[50,70]},
       uplink:  {d:[50,90], m:[50,88]},
-      rig:     {d:[72,17], m:[75,18]},
-      protocol:{d:[28,17], m:[25,18]},
-      range:   {d:[74,85], m:[76,83]},
-      archive: {d:[26,85], m:[24,83]}
+      rig:     {d:[74,13], m:[76,14]},
+      protocol:{d:[26,13], m:[24,14]},
+      range:   {d:[76,84], m:[77,82]},
+      archive: {d:[24,84], m:[23,82]}
     },
     edges:[
-      ['services','core'],['core','forge'],['forge','drops'],['drops','uplink'],
+      ['services','core'],['core','create'],['create','forge'],['forge','drops'],['drops','uplink'],
       ['core','rig'],['core','protocol'],['drops','range'],['drops','archive'],
       ['protocol','rig'],['archive','range']
     ]
@@ -1291,10 +1432,14 @@ function auraDraw(t){
 }
 function auraSwap(){
   aura.classList.remove('up');
-  setTimeout(()=>{ auraInit(); aura.classList.add('up'); }, 400);
+  setTimeout(()=>{
+    auraInit();
+    auraDraw(performance.now());   /* paint at once — a resize blanks the bitmap */
+    aura.classList.add('up');
+  }, 400);
 }
-window.addEventListener('resize', auraInit);
-auraInit(); aura.classList.add('up');
+window.addEventListener('resize', ()=>{ auraInit(); auraDraw(performance.now()); });
+auraInit(); auraDraw(0); aura.classList.add('up');
 
 const dc = document.getElementById('dust'), dctx = dc.getContext('2d');
 let specks = [];
@@ -1367,6 +1512,7 @@ function select(id){
   if(id === 'uplink') wireUplink();
   if(id === 'forge') wireForge();
   if(id === 'drops') wireShop();
+  if(id === 'create') wireCreate();
 }
 
 function closePanel(){
@@ -2010,6 +2156,192 @@ async function wireForge(){
   }
   initForgeScene();
   renderForgeUI();
+}
+
+/* ================= CREATE — WHAT CAN WE CREATE? =================
+   Data-driven category grid with instant search + tag filtering, an
+   expandable detail panel per card (native <details> for accessibility),
+   a comparison table, an FAQ accordion, and a closing CTA.
+   Every "Request quote" hands off to UPLINK with the category pre-filled.
+   Card art is inline SVG; each entry also accepts an optional `img` URL,
+   rendered lazily, so photos can replace the line art later. */
+const CREATE_ART = {
+  repair:'<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="9.5"/><circle cx="20" cy="20" r="3.4"/><path d="M20 4.5v6M20 29.5v6M4.5 20h6M29.5 20h6M9 9l4.3 4.3M26.7 26.7L31 31M31 9l-4.3 4.3M13.3 26.7L9 31"/></svg>',
+  proto:'<svg viewBox="0 0 40 40"><path d="M20 6l12 7v14l-12 7-12-7V13l12-7z"/><path d="M20 20l12-7M20 20v14M20 20L8 13" opacity=".55"/><path d="M14 30.5c-3.4-2-5.5-5.9-5.5-10" stroke-dasharray="2 3"/></svg>',
+  auto:'<svg viewBox="0 0 40 40"><path d="M6 25.5v-4.2l3-7.4A3 3 0 0111.8 12h16.4a3 3 0 012.8 1.9l3 7.4v4.2"/><path d="M6 25.5h28M9.5 25.5v3.2M30.5 25.5v3.2"/><circle cx="13" cy="25.5" r="2.6"/><circle cx="27" cy="25.5" r="2.6"/><path d="M9.5 21h21" opacity=".5"/></svg>',
+  home:'<svg viewBox="0 0 40 40"><path d="M7 18.5L20 8l13 10.5V32a1.8 1.8 0 01-1.8 1.8H8.8A1.8 1.8 0 017 32V18.5z"/><path d="M7 24.5h26M20 24.5v9.3" opacity=".55"/><path d="M15 21.5h-4M29 29h-4" opacity=".55"/></svg>',
+  biz:'<svg viewBox="0 0 40 40"><rect x="9" y="7" width="22" height="17" rx="2.2"/><path d="M20 24v6M13 32.5h14"/><path d="M14 12.5h12M14 17h8" opacity=".55"/></svg>',
+  gift:'<svg viewBox="0 0 40 40"><rect x="7.5" y="16" width="25" height="17" rx="2"/><path d="M6 12h28v4H6zM20 12v21"/><path d="M20 12s-1.5-5-5-5a2.8 2.8 0 000 5h5zM20 12s1.5-5 5-5a2.8 2.8 0 010 5h-5z"/></svg>',
+  edu:'<svg viewBox="0 0 40 40"><path d="M20 8l14 6-14 6-14-6 14-6z"/><path d="M11 17.5V26c0 2.5 4 4.6 9 4.6s9-2.1 9-4.6v-8.5"/><path d="M34 14v8" opacity=".6"/></svg>',
+  cos:'<svg viewBox="0 0 40 40"><path d="M20 5.5l12 4.4v9.6c0 7.4-5 13.1-12 15.4-7-2.3-12-8-12-15.4V9.9l12-4.4z"/><path d="M14.5 17.5l4 4 7-7.5" opacity=".7"/></svg>',
+  eng:'<svg viewBox="0 0 40 40"><path d="M26.5 9.5a6.4 6.4 0 00-8.8 8L8 27.2 12.8 32l9.7-9.7a6.4 6.4 0 008-8.8l-4.2 4.2-3.9-1-1-3.9 4.1-4.3z"/><path d="M11.5 28.5h.02"/></svg>',
+  custom:'<svg viewBox="0 0 40 40"><path d="M20 4.6l3.9 8.6 9.4 1.1-7 6.4 1.9 9.3L20 25.3l-8.2 4.7 1.9-9.3-7-6.4 9.4-1.1L20 4.6z"/><path d="M20 32.5v3M8 30l-2 2M32 30l2 2" opacity=".55"/></svg>'
+};
+const CREATE_CATS = [
+  { id:'repair', tag:'Repair', art:'repair', img:'',
+    title:'Replacement Parts',
+    blurb:'The discontinued clip, the knob nobody stocks anymore, the bracket that snapped.',
+    msg:'If it\u2019s plastic, there\u2019s a good chance we can recreate it.',
+    items:['Appliance knobs','Battery covers','Cabinet clips','Vacuum attachments','Plastic gears','Car trim clips','Broken brackets','Mounting hardware'] },
+  { id:'proto', tag:'Prototypes', art:'proto', img:'',
+    title:'Rapid Prototyping',
+    blurb:'Get a real object in your hands while the idea is still hot.',
+    msg:'Turn your idea into a physical product in days \u2014 not weeks.',
+    items:['Startup products','Product testing','Kickstarter prototypes','Functional engineering prototypes','Design validation'] },
+  { id:'auto', tag:'Automotive', art:'auto', img:'',
+    title:'Automotive',
+    blurb:'Interior fixes and custom mounts, printed in materials that survive a hot cabin.',
+    msg:'Heat-resistant PETG and PA-CF for anything that lives in a parked car.',
+    items:['Dash mounts','Wire clips','Custom brackets','Interior trim','Sensor mounts','Tool holders'] },
+  { id:'home', tag:'Home', art:'home', img:'',
+    title:'Home Organization',
+    blurb:'Storage built to your exact drawer, wall, or gap \u2014 not to a store\u2019s guess.',
+    msg:'Measured to your space, printed to fit the first time.',
+    items:['Drawer organizers','Wall mounts','Cable management','Kitchen accessories','Bathroom storage','Tool organization'] },
+  { id:'biz', tag:'Business', art:'biz', img:'',
+    title:'Business Solutions',
+    blurb:'Fixtures and displays that match your brand instead of a catalog.',
+    msg:'Small runs welcome \u2014 one counter or twenty locations.',
+    items:['POS stands','Tablet mounts','QR displays','Signage','Retail displays','Product holders','Trade show displays'] },
+  { id:'gift', tag:'Gifts', art:'gift', img:'',
+    title:'Personalized Gifts',
+    blurb:'Names, dates, inside jokes \u2014 objects that only make sense for one person.',
+    msg:'Custom text and colors at no extra tooling cost.',
+    items:['Nameplates','Keychains','Trophy plaques','Gaming accessories','Phone stands','Decorative pieces'] },
+  { id:'edu', tag:'Education', art:'edu', img:'',
+    title:'Education & STEM',
+    blurb:'Hands-on models that make an abstract lesson land.',
+    msg:'Classroom sets printed on-site \u2014 we can bring the rig to campus.',
+    items:['Science models','Robotics parts','Classroom manipulatives','Engineering demonstrations','Educational kits'] },
+  { id:'cos', tag:'Cosplay', art:'cos', img:'',
+    title:'Cosplay & Props',
+    blurb:'Screen-accurate builds, sized to your body and finished ready for paint.',
+    msg:'Display-only props \u2014 no functional weapons.',
+    items:['Armor','Weapons (display-only)','Helmets','Costume accessories','Movie props'] },
+  { id:'eng', tag:'Engineering', art:'eng', img:'',
+    title:'Engineering',
+    blurb:'Shop-floor tooling that pays for itself the first week it\u2019s in use.',
+    msg:'Iterate a jig on Monday, run the improved one on Wednesday.',
+    items:['Jigs','Fixtures','Custom tooling','Manufacturing aids','Machine guards','Alignment tools'] }
+];
+const CREATE_CHIPS = ['All','Repair','Prototypes','Automotive','Home','Business','Gifts','Education','Cosplay','Engineering'];
+const CREATE_FAQ = [
+  ['Can you recreate broken plastic parts?',
+   'Usually yes. Send photos with a ruler or calipers in frame, or hand us the pieces \u2014 even a shattered part gives us the geometry. We model it, print a test fit, then run the final in a material suited to the job.'],
+  ['Do I need a 3D model?',
+   'No. Plenty of jobs start from a photo, a sketch on a napkin, or the broken original. If you do have an STL, OBJ, or STEP file, drop it into the FORGE node and we\u2019ll quote straight from it.'],
+  ['Can you help design my idea?',
+   'That\u2019s most of what we do. Describe the problem and the constraints \u2014 what it mounts to, what it holds, how much abuse it takes \u2014 and we handle the CAD. You approve the design before anything prints.'],
+  ['How long does printing take?',
+   'Small parts often finish the same visit. Mid-size jobs typically run a few hours, and multi-part or large-format work usually lands in two to five days. Rush service is available.'],
+  ['What materials do you offer?',
+   'PLA for display and prototypes, PETG for heat and moisture, TPU for anything flexible, PA-CF nylon for structural loads, and resin when fine detail matters. We\u2019ll recommend based on where the part lives.'],
+  ['Do you deliver locally?',
+   'Yes \u2014 we drive to you. Greater Los Angeles is our core zone with no call-out fee inside 25 miles, a flat fee out to 60, and custom quotes beyond. Shipping is available too.'],
+  ['Can you print prototypes?',
+   'Yes, including functional ones meant to be tested rather than admired. We can iterate through several revisions in the time a traditional shop takes to quote the first.'],
+  ['Do you sign NDAs?',
+   'Happily, before you share anything sensitive. Client files aren\u2019t reused, resold, or shown in our gallery without written permission.']
+];
+const CREATE_CMP = [
+  ['Lead time',        'Weeks to months',            'Often same week'],
+  ['Minimum order',    'Hundreds of units',          'One part is fine'],
+  ['Tooling cost',     'Molds run thousands',        'No tooling at all'],
+  ['Design revisions',  'Slow and expensive',        'Change the file, reprint'],
+  ['Delivery',         'Freight and wait',           'We drive to you']
+];
+
+let crFilter = 'All', crQuery = '';
+function crMatch(c){
+  if(crFilter !== 'All' && c.tag !== crFilter) return false;
+  const q = crQuery.trim().toLowerCase();
+  if(!q) return true;
+  return (c.title + ' ' + c.blurb + ' ' + c.msg + ' ' + c.tag + ' ' + c.items.join(' '))
+    .toLowerCase().includes(q);
+}
+function crCard(c, i){
+  const art = c.img
+    ? '<img src="' + c.img + '" alt="" loading="lazy" decoding="async">'
+    : CREATE_ART[c.art];
+  return '<article class="cr-card" style="animation-delay:' + (i*45) + 'ms">' +
+    '<div class="cr-ico">' + art + '</div>' +
+    '<span class="cr-tag">' + c.tag + '</span>' +
+    '<h5>' + c.title + '</h5>' +
+    '<p class="cr-blurb">' + c.blurb + '</p>' +
+    '<details class="cr-more"><summary>Learn more</summary><div class="cr-body">' +
+      '<p class="cr-msg">' + c.msg + '</p>' +
+      '<ul class="cr-list">' + c.items.map(x=> '<li>' + x + '</li>').join('') + '</ul>' +
+    '</div></details>' +
+    '<button class="cta cr-quote" data-cat="' + c.title + '">Request quote</button>' +
+  '</article>';
+}
+function renderCreate(){
+  const grid = document.getElementById('crGrid');
+  if(!grid) return;
+  const list = CREATE_CATS.filter(crMatch);
+  const count = document.getElementById('crCount');
+  if(count) count.textContent = list.length + ' of ' + CREATE_CATS.length + ' categories';
+  grid.innerHTML =
+    (list.length ? list.map(crCard).join('')
+      : '<p class="cr-empty">Nothing matches that \u2014 but the custom bay below takes anything.</p>') +
+    '<article class="cr-card feat" style="animation-delay:' + (list.length*45) + 'ms">' +
+      '<div class="cr-ico">' + CREATE_ART.custom + '</div>' +
+      '<h5>Have an idea?</h5>' +
+      '<p class="cr-blurb">If you can imagine it, we can help design and manufacture it. Bring a sketch, a photo, a broken part, or just the problem you\u2019re trying to solve.</p>' +
+      '<button class="cta solid cr-quote" data-cat="Custom project">Start my project</button>' +
+    '</article>';
+}
+function crGoQuote(cat){
+  uplinkPrefill = 'Category: ' + cat + '\n\nWhat I need:\n';
+  select('uplink');
+}
+function wireCreate(){
+  const cmp = document.getElementById('crCmp');
+  if(cmp) cmp.innerHTML = CREATE_CMP.map(r=>
+    '<tr><th scope="row">' + r[0] + '</th>' +
+    '<td data-l="Traditional">' + r[1] + '</td>' +
+    '<td data-l="Marvelous 3D" class="win">' + r[2] + '</td></tr>').join('');
+  const faq = document.getElementById('crFaq');
+  if(faq){
+    faq.innerHTML = CREATE_FAQ.map(f=>
+      '<details class="faq-item"><summary>' + f[0] + '</summary><p>' + f[1] + '</p></details>').join('');
+    faq.addEventListener('toggle', e=>{ if(e.target.open) sfx.key(); }, true);
+  }
+  const chips = document.getElementById('crChips');
+  if(chips){
+    chips.innerHTML = CREATE_CHIPS.map(t=>
+      '<button class="shop-tab' + (t===crFilter ? ' on' : '') + '" data-chip="' + t + '" ' +
+      'aria-pressed="' + (t===crFilter) + '">' + t.toUpperCase() + '</button>').join('');
+    chips.addEventListener('click', e=>{
+      const b = e.target.closest('[data-chip]');
+      if(!b) return;
+      crFilter = b.dataset.chip;
+      [...chips.children].forEach(x=>{
+        const on = x === b;
+        x.classList.toggle('on', on);
+        x.setAttribute('aria-pressed', on);
+      });
+      renderCreate(); sfx.key();
+    });
+  }
+  const q = document.getElementById('crSearch');
+  if(q){
+    q.value = crQuery;
+    q.addEventListener('input', ()=>{ crQuery = q.value; renderCreate(); });
+  }
+  const grid = document.getElementById('crGrid');
+  if(grid){
+    grid.addEventListener('click', e=>{
+      const b = e.target.closest('.cr-quote');
+      if(b){ sfx.open(); crGoQuote(b.dataset.cat); return; }
+      if(e.target.closest('summary')) sfx.key();
+    });
+  }
+  const gq = document.getElementById('crCtaQuote');
+  if(gq) gq.addEventListener('click', ()=>{ sfx.open(); crGoQuote('Free quote'); });
+  const bs = document.getElementById('crCtaBrowse');
+  if(bs) bs.addEventListener('click', ()=>{ sfx.open(); select('services'); });
+  renderCreate();
 }
 
 /* ================= DROPS — SHOP ================= */
