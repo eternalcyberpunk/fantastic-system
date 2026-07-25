@@ -1470,7 +1470,7 @@ const shop = {
   cfg:{ color:'#6fe8dc', size:'M', finish:'matte', qty:1, text:'' },
   cart:[], code:'', delivery:'pickup', pickupSpot:0, location:'',
   buyName:'', buyContact:'', orderCode:'', paidBanner:false,
-  channel:{state:'unknown', msg:''}
+  channel:{state:'unknown', msg:''}, dispatchSent:null
 };
 
 function shopUnit(item, cfg){
@@ -1597,6 +1597,8 @@ function renderShop(){
         <div class="big" style="margin-bottom:8px">ORDER RECEIVED</div>
         <p style="margin:0">${shop.paidBanner ? 'Payment received. ' : ''}Order code <b style="font-family:var(--mono)">${shop.orderCode}</b> — we confirm within one business day.</p>
       </div>
+      ${shop.paidBanner && shop.dispatchSent === true ? '<p class="forge-note" style="text-align:center">Print specs transmitted to dispatch \u2713</p>' : ''}
+      ${shop.paidBanner && shop.dispatchSent === false ? '<p class="forge-note" style="text-align:center">Couldn\u2019t auto-send the print specs \u2014 tap below to email them.</p><div class="cta-row" style="justify-content:center"><button class="cta" id="sh-dispatch">Email print specs to dispatch</button></div>' : ''}
       <div class="cta-row"><button class="cta" data-sv="catalog">Back to drops</button></div>`;
   }
 
@@ -1606,6 +1608,16 @@ function renderShop(){
   root.querySelectorAll('[data-item]').forEach(b=> b.addEventListener('click', ()=>{
     shop.itemId = b.dataset.item; shop.view = 'item'; renderShop(); sfx.open();
   }));
+  const dp = document.getElementById('sh-dispatch');
+  if(dp) dp.addEventListener('click', ()=>{
+    if(!paidOrderData) return;
+    const d = paidOrderData;
+    const body = encodeURIComponent(d.i.join('\n') + '\nDelivery: ' + d.dl +
+      '\nTOTAL CHARGED: $' + (d.t/100).toFixed(2) + '\nOrder code: ' + d.c +
+      '\nStatus: PAID via Stripe');
+    window.location.href = 'mailto:dispatch@marvelous3d.biz?subject=' +
+      encodeURIComponent('PAID \u2713 Shop order ' + d.c) + '&body=' + body;
+  });
 }
 
 /* ============ GENERATIVE CHECKOUT TERMINAL ============ */
@@ -1912,11 +1924,43 @@ async function terminalRequest(){
   }
 }
 
-/* return from Stripe: show result state */
+/* return from Stripe: show result + auto-email print specs to dispatch */
+let paidOrderData = null;
+function b64uToStr(s){
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  while(s.length % 4) s += '=';
+  const bin = atob(s);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+async function sendPaidDispatch(d){
+  paidOrderData = d;
+  const orderText = d.i.join('\n') +
+    '\nDelivery: ' + d.dl +
+    '\nTOTAL CHARGED: $' + (d.t/100).toFixed(2) +
+    '\nOrder code: ' + d.c +
+    '\nStatus: PAID via Stripe \u2014 cross-check code ' + d.c + ' in the Stripe dashboard.';
+  try{
+    const r = await fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({
+        _subject: 'PAID \u2713 Shop order ' + d.c + ' \u2014 $' + (d.t/100).toFixed(2),
+        name: d.n || '\u2014', reply_channel: d.e || '\u2014', order: orderText })
+    });
+    if(!r.ok) throw new Error('bad status');
+    shop.dispatchSent = true;
+  }catch(err){
+    shop.dispatchSent = false;
+  }
+  if(shop.view === 'done') renderShop();
+}
 (function(){
   const q = new URLSearchParams(location.search);
   const chk = q.get('checkout');
   if(!chk) return;
+  const enc = q.get('d');
   history.replaceState({}, '', location.pathname);
   endBoot();
   if(chk === 'success'){
@@ -1924,6 +1968,10 @@ async function terminalRequest(){
     shop.cart = []; updateCartBadge();
     shop.paidBanner = true;
     shop.view = 'done';
+    if(enc){
+      try{ sendPaidDispatch(JSON.parse(b64uToStr(enc))); }
+      catch(e){ shop.dispatchSent = false; }
+    }
   } else {
     shop.view = 'cart';
   }
