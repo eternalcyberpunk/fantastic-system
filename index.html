@@ -106,6 +106,9 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .brand-name{font-family:var(--bebop);font-size:17px;letter-spacing:.1em;white-space:nowrap;color:#eafdf9;
   text-shadow:-1.4px 0 rgb(var(--c2)/.6),1.4px 0 rgb(var(--c3)/.55),0 0 16px rgb(var(--c2)/.3)}
 .brand-sub{font-family:var(--mono);font-size:8.5px;letter-spacing:.32em;color:rgba(159,240,230,.5);white-space:nowrap}
+.brand-status{display:flex;align-items:center;gap:6px;margin-top:3px;
+  font-family:var(--mono);font-size:7.5px;letter-spacing:.26em;white-space:nowrap;
+  color:rgba(214,255,232,.42)}
 
 .readouts{display:flex;align-items:center;gap:22px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
   color:rgba(190,246,238,.72);text-shadow:0 0 9px rgb(var(--c2)/.3)}
@@ -148,9 +151,10 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
   .mkt-btn{padding:7px;border-radius:9px}
   .sfx-btn{padding:7px;border-radius:9px}
 }
-.pulse{width:6px;height:6px;border-radius:50%;background:var(--prism-cyan);
-  box-shadow:0 0 8px var(--prism-cyan);animation:pulse 2.2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.pulse{width:5px;height:5px;flex:none;border-radius:50%;background:#3ddc84;
+  box-shadow:0 0 7px rgba(61,220,132,.75);opacity:.85;
+  animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.85}50%{opacity:.28}}
 .sfx-btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:rgba(190,246,238,.72);
   padding:7px 12px;border:1px solid rgb(var(--c2)/.32);border-radius:999px;transition:.2s;
   text-shadow:0 0 9px rgb(var(--c2)/.3)}
@@ -758,6 +762,7 @@ button.chip:hover .fx{color:#ff8a8a}
 }
 @media (max-width:400px){
   .brand-name{font-size:13px}
+  .brand-status{font-size:7px;letter-spacing:.2em;margin-top:2px}
   .readouts .readout{display:none}
   .sigils{gap:4px}
   .sigil-btn{width:23px;height:23px;border-radius:7px}
@@ -794,12 +799,12 @@ button.chip:hover .fx{color:#ff8a8a}
     <div class="brand-text">
       <div class="brand-name">MARVELOUS 3D</div>
       <div class="brand-sub">MOBILE FABRICATION</div>
+      <div class="brand-status"><i class="pulse"></i>UNIT ONLINE</div>
     </div>
   </div>
   <div class="readouts">
     <span class="readout hide-m">34.05°N&thinsp;118.24°W</span>
     <span class="readout hide-m" id="clock">00:00:00</span>
-    <span class="readout"><i class="pulse"></i><span class="hide-m">UNIT ONLINE</span></span>
     <div class="sigils" id="sigilBar" role="group" aria-label="Interface sigil">
       <button class="sigil-btn on" data-sigil="prism" aria-label="Prism sigil" aria-pressed="true"><svg viewBox="0 0 20 20"><path d="M10 3.2 17 16H3L10 3.2z"/><path d="M10 3.2V16M10 9.5 3 16M10 9.5 17 16" opacity=".5"/></svg></button>
       <button class="sigil-btn" data-sigil="iris" aria-label="Iris sigil" aria-pressed="false"><svg viewBox="0 0 20 20"><path d="M2.2 10C4.4 6 7 4 10 4s5.6 2 7.8 6c-2.2 4-4.8 6-7.8 6s-5.6-2-7.8-6z"/><circle cx="10" cy="10" r="3.1"/><circle cx="10" cy="10" r=".9" fill="currentColor" stroke="none"/></svg></button>
@@ -1056,7 +1061,7 @@ const NODES = [
      <option>Props / cosplay</option><option>Small-batch run</option><option>3D scanning</option><option>Not sure yet</option>
    </select></div>
    <div class="field"><label for="f-brief">MISSION BRIEF</label><textarea id="f-brief" placeholder="What are we printing, roughly how many, and where do we deploy?"></textarea></div>
-   <div class="field"><label>FILES — STL / OBJ / 3MF / ZIP / IMAGES</label>
+   <div class="field"><label>FILES — STL / OBJ / 3MF / ZIP / IMAGES · UP TO 1 GB EACH</label>
      <div class="chips" id="upFileChips" style="margin-top:4px"></div>
      <div class="term-chan" id="upChan" style="margin:9px 0 0"></div>
      <button class="cta" id="upAdd" style="margin-top:10px">Attach files</button>
@@ -1733,8 +1738,24 @@ panelBody.addEventListener('keydown', e=>{
 
 /* ================= UPLINK ================= */
 /* ---- file delivery helpers (uplink + forge) ---- */
-const PER_FILE_LIMIT = 4 * 1024 * 1024; /* Vercel function body cap is ~4.5 MB per request */
-function fmtSize(b){ return b < 1048576 ? Math.max(1, Math.round(b/1024)) + ' KB' : (b/1048576).toFixed(1) + ' MB'; }
+/* Client uploads go browser -> Vercel Blob directly, so the ~4.5 MB Function
+   body limit doesn't apply. Multipart chunks + retries make 1 GB practical.
+   Keep MAX_UPLOAD in sync with MAX_BYTES in api/blob-upload.js. */
+const MAX_UPLOAD = 1024 * 1024 * 1024;            /* 1 GB */
+const PER_FILE_LIMIT = 4 * 1024 * 1024;           /* fallback route's ceiling */
+const BLOB_SDK_CDN = 'https://cdn.jsdelivr.net/npm/@vercel/blob@1/+esm';
+let blobSDK = null, blobSDKTried = false;
+async function loadBlobSDK(){
+  if(blobSDK || blobSDKTried) return blobSDK;
+  blobSDKTried = true;
+  try{ blobSDK = await import(BLOB_SDK_CDN); }
+  catch(e){ blobSDK = null; }
+  return blobSDK;
+}
+function fmtSize(b){
+  if(b >= 1073741824){ const g = b/1073741824; return (g % 1 ? g.toFixed(1) : g.toFixed(0)) + ' GB'; }
+  return b < 1048576 ? Math.max(1, Math.round(b/1024)) + ' KB' : (b/1048576).toFixed(1) + ' MB';
+}
 async function gzipBlob(blob){
   if(!('CompressionStream' in window)) return null;
   try{
@@ -1747,9 +1768,51 @@ async function gzipBlob(blob){
 async function uploadFilesToCloud(files, progress){
   const links = [], skipped = [];
   let reason = '';
+  const sdk = await loadBlobSDK();
+
   for(let i=0;i<files.length;i++){
     const f = files[i];
-    if(progress) progress('Uploading ' + (i+1) + '/' + files.length + ' \u2014 ' + f.name + '\u2026');
+    const tag = files.length > 1 ? (i+1) + '/' + files.length + ' \u2014 ' : '';
+    if(f.blob.size > MAX_UPLOAD){
+      skipped.push(f.name + ' (' + fmtSize(f.blob.size) + ')');
+      if(!reason) reason = 'over the ' + fmtSize(MAX_UPLOAD) + ' cap \u2014 use a share link';
+      continue;
+    }
+    const path = 'marvelous-uploads/' + Date.now().toString(36) + '-' +
+      f.name.replace(/[^\w.\-]+/g,'_').slice(0,90);
+
+    /* 1. direct browser -> Blob upload, no function body limit, multipart + retries */
+    if(sdk && sdk.upload){
+      try{
+        if(progress) progress('Uploading ' + tag + f.name + '\u2026');
+        const res = await sdk.upload(path, f.blob, {
+          access:'public',
+          handleUploadUrl:'/api/blob-upload',
+          multipart: f.blob.size > 8*1024*1024,
+          contentType: f.blob.type || 'application/octet-stream',
+          onUploadProgress: p=>{
+            if(progress) progress('Uploading ' + tag + f.name + ' \u2014 ' + Math.round(p.percentage) + '%');
+          }
+        });
+        if(res && (res.downloadUrl || res.url)){
+          links.push({name:f.name, url: res.downloadUrl || res.url});
+          continue;
+        }
+        throw new Error('no url returned');
+      }catch(err){
+        if(!reason && f.blob.size > PER_FILE_LIMIT){
+          const m = (err && err.message) || '';
+          reason = /BLOB_READ_WRITE_TOKEN|token/i.test(m)
+            ? 'large-file channel needs BLOB_READ_WRITE_TOKEN in Vercel \u2014 add it and redeploy'
+            : /404|Not Found/i.test(m)
+              ? 'api/blob-upload not on this deploy \u2014 commit it and push'
+              : 'large-file upload failed' + (m ? ': ' + m.slice(0,90) : '');
+        }
+        /* fall through to the small-file route below */
+      }
+    }
+
+    /* 2. fallback: the original server route (small files only) */
     let blob = f.blob, name = f.name;
     if(blob.size > PER_FILE_LIMIT && !/\.(zip|gz|png|jpe?g)$/i.test(name)){
       if(progress) progress('Compressing ' + f.name + '\u2026');
@@ -1758,12 +1821,14 @@ async function uploadFilesToCloud(files, progress){
     }
     if(blob.size > PER_FILE_LIMIT){
       skipped.push(f.name + ' (' + fmtSize(f.blob.size) + ')');
-      if(!reason) reason = 'over ' + fmtSize(PER_FILE_LIMIT) + ' even compressed \u2014 use a share link';
+      if(!reason) reason = 'large-file channel unavailable and the file is over ' +
+        fmtSize(PER_FILE_LIMIT) + ' \u2014 use a share link';
       continue;
     }
     const ab = new AbortController();
     const timer = setTimeout(()=> ab.abort(), 60000);
     try{
+      if(progress) progress('Uploading ' + tag + f.name + '\u2026');
       const r = await fetch('/api/upload?name=' + encodeURIComponent(name), {
         method:'POST', signal:ab.signal,
         headers:{'Content-Type':'application/octet-stream'},
@@ -1785,7 +1850,7 @@ async function uploadFilesToCloud(files, progress){
         else if(err && /BLOB|token|store|not configured/i.test(err.message || '')) reason = 'Blob store not connected \u2014 Vercel \u2192 Storage \u2192 Create Blob \u2192 Connect to project, then redeploy';
         else if(err && err.name === 'AbortError') reason = 'upload timed out';
         else if(err && err.status) reason = 'upload error ' + err.status + (err.message ? ': ' + err.message.slice(0,120) : '');
-        else reason = 'can\u2019t reach /api/upload from this environment \u2014 works on the live site';
+        else reason = 'can\u2019t reach the upload API from this environment \u2014 works on the live site';
       }
     }
   }
@@ -1804,9 +1869,17 @@ async function checkUploadChannel(){
     clearTimeout(t);
     if(r.status === 404){ set('#ff5d5d','UPLOAD API NOT ON THIS DEPLOY \u2014 USE FILE LINKS'); return; }
     let d = {}; try{ d = await r.json(); }catch(e){}
-    if(d.ok && d.blob_configured) set('#3ddc84','FILE CHANNEL ONLINE');
-    else if(d.ok) set('#ffd166','API LIVE \u2014 CONNECT A BLOB STORE IN VERCEL');
-    else set('#ffd166','FILE CHANNEL ERROR ' + r.status);
+    if(!d.ok){ set('#ffd166','FILE CHANNEL ERROR ' + r.status); return; }
+    if(!d.blob_configured){ set('#ffd166','API LIVE \u2014 CONNECT A BLOB STORE IN VERCEL'); return; }
+    /* is the large-file (browser -> Blob) path live too? */
+    let big = null;
+    try{
+      const r2 = await fetch('/api/blob-upload', {method:'GET'});
+      if(r2.ok) big = await r2.json().catch(()=> null);
+    }catch(e){}
+    if(big && big.client_uploads_ready) set('#3ddc84','FILE CHANNEL ONLINE \u2014 UP TO ' + (big.max_label || '1 GB'));
+    else if(big) set('#ffd166','LARGE FILES NEED BLOB_READ_WRITE_TOKEN \u2014 ' + fmtSize(PER_FILE_LIMIT) + ' FOR NOW');
+    else set('#3ddc84','FILE CHANNEL ONLINE \u2014 ' + fmtSize(PER_FILE_LIMIT) + ' PER FILE');
   }catch(e){
     set('#ff5d5d','FILE CHANNEL OFFLINE HERE \u2014 USE FILE LINKS');
   }
@@ -1881,7 +1954,7 @@ function wireUplink(){
     if(pasted) filesBlock += '\nShared links:\n' + pasted;
     note.textContent = 'Transmitting\u2026';
     const ab = new AbortController();
-    const timer = setTimeout(()=> ab.abort(), 9000);
+    const timer = setTimeout(()=> ab.abort(), 15000);
     try{
       const r = await fetch('https://formsubmit.co/ajax/dispatch@marvelous3d.biz', {
         method:'POST', signal:ab.signal,
@@ -2192,7 +2265,7 @@ function renderForgeFiles(){
   if(noteEl){
     const total = forge.files.reduce((a,f)=> a + f.blob.size, 0);
     noteEl.textContent = forge.files.length
-      ? 'Total ' + fmtSize(total) + ' \u2014 sent as download links with your uplink transmission. Files over ' + fmtSize(PER_FILE_LIMIT) + ' need a Drive/Dropbox link.'
+      ? 'Total ' + fmtSize(total) + ' \u2014 sent as download links with your uplink transmission. Up to ' + fmtSize(MAX_UPLOAD) + ' per file.'
       : 'Models loaded here are staged to send as download links with your transmission.';
   }
 }
