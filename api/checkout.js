@@ -16,9 +16,85 @@
 // "type": "module", either remove that line or change the export at the
 // bottom to:  export default async function handler(req, res) { ... }
 
+// DROPS shop items
 const CATALOG = { dragon:16, axolotl:14, keytag:8, planter:12, dock:15, throne:18 };
 const SIZES   = { S:0.75, M:1, L:1.4 };
 const SILK_UPCHARGE = 2; // dollars
+
+// MARKETPLACE items — generated from MP_CATS in index.html; keep the two in sync.
+// (Prices are authoritative HERE; the client's numbers are only for display.)
+const MP_CATALOG = {
+  'art-01':45,
+  'art-02':38,
+  'art-03':55,
+  'art-04':15,
+  'art-05':24,
+  'art-06':65,
+  'auto-01':25,
+  'auto-02':32,
+  'auto-03':18,
+  'auto-04':14,
+  'auto-05':28,
+  'auto-06':34,
+  'auto-07':22,
+  'auto-08':27,
+  'auto-09':36,
+  'biz-01':12,
+  'biz-02':28,
+  'biz-03':20,
+  'biz-04':24,
+  'biz-05':21,
+  'biz-06':35,
+  'cos-01':85,
+  'cos-02':95,
+  'cos-03':28,
+  'cos-04':45,
+  'cos-05':55,
+  'elec-01':14,
+  'elec-02':29,
+  'elec-03':17,
+  'elec-04':15,
+  'elec-05':13,
+  'elec-06':31,
+  'elec-07':18,
+  'elec-08':22,
+  'game-01':16,
+  'game-02':24,
+  'game-03':27,
+  'game-04':13,
+  'game-05':19,
+  'game-06':26,
+  'home-01':16,
+  'home-02':12,
+  'home-03':19,
+  'home-04':24,
+  'home-05':21,
+  'home-06':23,
+  'home-07':20,
+  'home-08':15,
+  'marine-01':26,
+  'marine-02':23,
+  'marine-03':19,
+  'marine-04':22,
+  'marine-05':29,
+  'out-01':20,
+  'out-02':17,
+  'out-03':24,
+  'out-04':18,
+  'robot-01':25,
+  'robot-02':14,
+  'robot-03':19,
+  'robot-04':22,
+  'robot-05':28,
+  'shop-01':18,
+  'shop-02':22,
+  'shop-03':15,
+  'shop-04':26,
+  'shop-05':32,
+  'shop-06':30
+};
+const MP_SIZES  = { S:0.8, M:1, L:1.35 };
+const MP_MAT_UP = { 'PLA':0, 'PETG':2, 'TPU':3, 'Resin':4, 'PA-CF':6 };
 const SHIP = {
   pickup:  { label: 'Pickup at deployment', amount: 0 },
   dropoff: { label: 'Local LA drop-off',    amount: 800 },
@@ -66,10 +142,15 @@ module.exports = async (req, res) => {
     let itemsTotal = 0;
 
     items.slice(0, 20).forEach((it, i) => {
-      const base = CATALOG[it.id];
+      const isMp = it.kind === 'mp';
+      const base = isMp ? MP_CATALOG[it.id] : CATALOG[it.id];
       if (base == null) throw new Error('unknown item: ' + it.id);
-      const mult = SIZES[it.size] != null ? SIZES[it.size] : 1;
-      const unit = Math.round((base * mult + (it.finish === 'silk' ? SILK_UPCHARGE : 0)) * 100);
+      const sizes = isMp ? MP_SIZES : SIZES;
+      const mult = sizes[it.size] != null ? sizes[it.size] : 1;
+      const extra = isMp
+        ? (MP_MAT_UP[it.finish] || 0)
+        : (it.finish === 'silk' ? SILK_UPCHARGE : 0);
+      const unit = Math.round((base * mult + extra) * 100);
       const qty = Math.min(Math.max(parseInt(it.qty, 10) || 1, 1), 50);
       const label = String(it.name || it.id).slice(0, 80) +
         ' (' + (it.size || 'M') + ' · ' + (it.finish || 'matte') + ')';
